@@ -107,7 +107,7 @@ function Card.IsModuleRace(c,race)
 	return false
 end
 
---¸ğµâ ¼ÒÈ¯(·ê)
+--ëª¨ë“ˆ ì†Œí™˜(ë£°)
 function Auxiliary.AddModuleProcedure(c,f1,f2,min,max,gf)
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
@@ -213,7 +213,7 @@ function Auxiliary.ModuleOperation(gf,...)
 	end
 end
 
---À¶ÇÕ Å¸ÀÔ »èÁ¦ ½ÃÀÛ
+--ìœµí•© íƒ€ì… ì‚­ì œ ì‹œì‘
 	local type=Card.GetType
 	Card.GetType=function(c)
 	if c.CardType_Module then
@@ -267,4 +267,4 @@ end
 	end
 	return iftype(c,t)
 end
---À¶ÇÕ Å¸ÀÔ »èÁ¦ ³¡
+--ìœµí•© íƒ€ì… ì‚­ì œ ë

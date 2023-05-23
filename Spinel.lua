@@ -1,6 +1,6 @@
 spinel=spinel or {}
 
---½ºÆç ½ºÇÇµå Á¶Á¤
+--ìŠ¤í  ìŠ¤í”¼ë“œ ì¡°ì •
 
 GlobalSpellSpeed=false
 GlobalSpellSpeedTable={}
@@ -71,7 +71,7 @@ function RegisterSpellSpeedCheck()
 	Duel.RegisterEffect(e1,0)
 end
 
---¼Ò¸ê
+--ì†Œë©¸
 
 function Duel.Delete(e,sg)	
 	local over=Group.CreateGroup()
@@ -126,14 +126,14 @@ function Duel.Delete(e,sg)
 	end
 end
 
---Æ®¶ó¹Ìµå ¾Æ´©ºñ½º
+--íŠ¸ë¼ë¯¸ë“œ ì•„ëˆ„ë¹„ìŠ¤
 
 local cregeff=Card.RegisterEffect
 function Card.RegisterEffect(c,e,forced,...)
 	cregeff(c,e,forced,...)
 	local code=c:GetOriginalCode()
 	local mt=_G["c"..code]
-	--Æ®¶ó¹Ìµå ¸¶½ºÅÍ
+	--íŠ¸ë¼ë¯¸ë“œ ë§ˆìŠ¤í„°
 	if code==32912040 and mt.eff_ct[c][0]==e then
 		local cost=e:GetCost()
 		e:SetCountLimit(999)
@@ -161,13 +161,13 @@ function Card.RegisterEffect(c,e,forced,...)
 		return Duel.IsPlayerAffectedByEffect(tp,99000347) or Duel.GetTurnPlayer()~=tp
 		end)
 	end
-	--Æ®¶ó¹Ìµå ÇåÅÍ
+	--íŠ¸ë¼ë¯¸ë“œ í—Œí„°
 	if code==95923441 and mt.eff_ct[c][1]==e then
 		e:SetCondition(function(e,tp,eg,ep,ev,re,r,rp)
 		return Duel.IsPlayerAffectedByEffect(tp,99000347) or Duel.GetTurnPlayer()~=tp
 		end)
 	end
-	--Æ®¶ó¹Ìµå ´í¼­
+	--íŠ¸ë¼ë¯¸ë“œ ëŒ„ì„œ
 	if code==69529337 and mt.eff_ct[c][0]==e then
 		e:SetCountLimit(999)
 		e:SetCost(function(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -195,7 +195,7 @@ function Card.RegisterEffect(c,e,forced,...)
 	end
 end
 
---¾Æ½ºÅÚ¶ó °¢¼ºÀÇ ºû
+--ì•„ìŠ¤í…”ë¼ ê°ì„±ì˜ ë¹›
 
 local cregeff=Card.RegisterEffect
 function Card.RegisterEffect(c,e,forced,...)
@@ -223,7 +223,7 @@ function spinel.lightfilter(c,tp)
 end
 
 
---Á¦·Î´Ï¾î ½´ÆÛÆ¯¼Ò
+--ì œë¡œë‹ˆì–´ ìŠˆí¼íŠ¹ì†Œ
 
 --if not ZeronierTable then ZeronierTable={} end
 
@@ -273,7 +273,7 @@ function Duel.RegisterEffect(e,tp,forced,...)
 	dregeff(e,tp,forced,...)
 end
 
---½ºÇÇ³Ú ½´ÆÛ¹ßµ¿
+--ìŠ¤í”¼ë„¬ ìŠˆí¼ë°œë™
 
 if not SpinelTable then SpinelTable={} end
 
@@ -355,12 +355,12 @@ function Duel.RegisterEffect(e,tp,forced,...)
 	dregeff(e,tp,forced,...)
 end
 
---ÀÌÇÏ ¾È¾²´Â°Å
+--ì´í•˜ ì•ˆì“°ëŠ”ê±°
 
 --EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP
 spinel.delay=0x14000
 
---¿¢½ÃÁî ¼ÒÀç Á¦°Å (ct=Á¦°ÅÇÒ ¼ö)
+--ì—‘ì‹œì¦ˆ ì†Œì¬ ì œê±° (ct=ì œê±°í•  ìˆ˜)
 function spinel.rmovcost(ct)
 	return function(e,tp,eg,ep,ev,re,r,rp,chk)
 		if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,ct,REASON_COST) end
@@ -368,7 +368,7 @@ function spinel.rmovcost(ct)
 	end
 end
 
---ÀÚ±âÀÚ½Å ÄÚ½ºÆ®
+--ìê¸°ìì‹  ì½”ìŠ¤íŠ¸
 function spinel.relcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsReleasable() end
 	Duel.Release(e:GetHandler(),REASON_COST)
@@ -394,7 +394,7 @@ function spinel.discost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SendtoGrave(e:GetHandler(),REASON_COST+REASON_DISCARD)
 end
 
---µå·Î¿ì (pl=ÇÃ·¹ÀÌ¾î[ÀÚ½Å 0, »ó´ë 1], ct=¼ö)
+--ë“œë¡œìš° (pl=í”Œë ˆì´ì–´[ìì‹  0, ìƒëŒ€ 1], ct=ìˆ˜)
 function spinel.drawtg(pl,ct)
 	return function(e,tp,eg,ep,ev,re,r,rp,chk)
 		if chk==0 then return Duel.IsPlayerCanDraw(math.abs(pl-tp),ct) end
@@ -408,14 +408,14 @@ function spinel.drawop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Draw(p,d,REASON_EFFECT)
 end
 
---¿¢½ÃÁî ¼ÒÀç¼ö Ã¼Å©
+--ì—‘ì‹œì¦ˆ ì†Œì¬ìˆ˜ ì²´í¬
 function spinel.xmcon(ct,excon)
 	return function(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():GetOverlayCount()>=ct and (not excon or excon(e,tp,eg,ep,ev,re,r,rp))
 	end
 end
 
---½ºÆ®¸µ Ãâ·Â
+--ìŠ¤íŠ¸ë§ ì¶œë ¥
 function spinel.desccost(costf)
 	return function(e,tp,eg,ep,ev,re,r,rp,chk)
 		if chk==0 then return (not costf or costf(e,tp,eg,ep,ev,re,r,rp,0)) end
@@ -424,7 +424,7 @@ function spinel.desccost(costf)
 	end
 end
 
---¼ÒÈ¯Å¸ÀÔ Ã¼Å©
+--ì†Œí™˜íƒ€ì… ì²´í¬
 function spinel.stypecon(t,con)
 	return function(e,tp,eg,ep,ev,re,r,rp)
 		return bit.band(e:GetHandler():GetSummonType(),t)==t and (not con or con(e,tp,eg,ep,ev,re,r,rp))

@@ -62,7 +62,7 @@ function Duel.OrderSummon(p,c)
 	end
 end
 
---¿À´õ ¼ÒÈ¯ À¯Æ¿¸®Æ¼
+--ì˜¤ë” ì†Œí™˜ ìœ í‹¸ë¦¬í‹°
 
 function Auxiliary.AddOrderProcedure(c,dir,gf,...)
 	local f={...}
@@ -163,7 +163,7 @@ function Auxiliary.OrderOperation(gf,...)
 	end
 end
 
---À¶ÇÕ Å¸ÀÔ »èÁ¦
+--ìœµí•© íƒ€ì… ì‚­ì œ
 
 	local type=Card.GetType
 	Card.GetType=function(c)
