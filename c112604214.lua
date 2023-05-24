@@ -40,14 +40,14 @@ function s.tar1(e,tp,eg,ep,ev,re,r,rp,chk)
 		and Duel.IsExistingMatchingCard(Card.IsAbleToGrave,tp,0,LOCATION_EXTRA,1,nil)
 	local b3=Duel.IsExistingMatchingCard(s.nfil13,tp,LOCATION_ONFIELD,0,1,nil)
 		and Duel.IsExistingMatchingCard(s.tfil13,tp,LOCATION_DECK,0,1,nil,e,tp) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-	local b4=not Duel.IsExistingMatchingCard(s.nfil111,tp,LOCATION_MZONE,0,1,nil)
+	local b4= not Duel.IsExistingMatchingCard(s.nfil111,tp,LOCATION_MZONE,0,1,nil,tp)
 		and not Duel.IsExistingMatchingCard(s.nfil12,tp,LOCATION_MZONE,0,1,nil)
 		and not Duel.IsExistingMatchingCard(s.nfil13,tp,LOCATION_MZONE,0,1,nil)
 		and Duel.IsExistingMatchingCard(s.tfil14,tp,LOCATION_HAND,0,1,nil)
 	if chk==0 then
 		return b1 or b2 or b3 or b4
 	end
-	local op=aux.SelectEffect(tp,
+	local op=Duel.SelectEffect(tp,
 		{b1,aux.Stringid(id,0)},
 		{b2,aux.Stringid(id,1)},
 		{b3,aux.Stringid(id,2)},
