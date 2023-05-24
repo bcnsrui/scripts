@@ -43,25 +43,45 @@ function s.tar1(e,tp,eg,ep,ev,re,r,rp,chk)
 	local b4= not Duel.IsExistingMatchingCard(s.nfil111,tp,LOCATION_MZONE,0,1,nil,tp)
 		and not Duel.IsExistingMatchingCard(s.nfil12,tp,LOCATION_MZONE,0,1,nil)
 		and not Duel.IsExistingMatchingCard(s.nfil13,tp,LOCATION_MZONE,0,1,nil)
-		and Duel.IsExistingMatchingCard(s.tfil14,tp,LOCATION_HAND,0,1,nil)
+		and Duel.IsExistingMatchingCard(s.tfil14,tp,LOCATION_HAND,0,1,e:GetHandler())
 	if chk==0 then
 		return b1 or b2 or b3 or b4
 	end
-	local op=Duel.SelectEffect(tp,
-		{b1,aux.Stringid(id,0)},
-		{b2,aux.Stringid(id,1)},
-		{b3,aux.Stringid(id,2)},
-		{b4,aux.Stringid(id,3)})
-	e:SetLabel(op)
-	if op==1 then
+	local ops={}
+	local opval={}
+	local off=1
+	if b1 then
+		ops[off]=aux.Stringid(id,0)
+		opval[off-1]=1
+		off=off+1
+	end
+	if b2 then
+		ops[off]=aux.Stringid(id,1)
+		opval[off-1]=2
+		off=off+1
+	end
+	if b3 then
+		ops[off]=aux.Stringid(id,2)
+		opval[off-1]=3
+		off=off+1
+	end
+	if b4 then
+		ops[off]=aux.Stringid(id,3)
+		opval[off-1]=4
+		off=off+1
+	end
+	local op=Duel.SelectOption(tp,table.unpack(ops))
+	local sel=opval[op]
+	e:SetLabel(sel)
+	if sel==1 then
 		e:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 		Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK+LOCATION_GRAVE)
-	elseif op==2 then
+	elseif sel==2 then
 		e:SetCategory(CATEGORY_TOGRAVE)
-	elseif op==3 then
+	elseif sel==3 then
 		e:SetCategory(CATEGORY_SPECIAL_SUMMON)
 		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK)
-	elseif op==4 then
+	elseif sel==4 then
 		e:SetCategory(CATEGORY_DRAW)
 		Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,2)
 	end
