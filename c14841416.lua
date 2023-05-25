@@ -1,21 +1,32 @@
 --시노노메 네잎클로버 태엽
+local s,id=GetID()
 function c14841416.initial_effect(c)
+	aux.AddEquipProcedure(c,nil,s.filter)
 	--Activate
 	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(14841416,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e1:SetCountLimit(1,14841416,EFFECT_COUNT_CODE_OATH)
+	e1:SetCountLimit(1,14841416)
 	e1:SetTarget(c14841416.target)
 	e1:SetOperation(c14841416.operation)
 	c:RegisterEffect(e1)
-	--Destroy
+	--atk&lv
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_SINGLE)
-	e2:SetCode(EVENT_LEAVE_FIELD)
-	e2:SetOperation(c14841416.desop)
+	e2:SetType(EFFECT_TYPE_EQUIP)
+	e2:SetCode(EFFECT_UPDATE_ATTACK)
+	e2:SetValue(1000)
 	c:RegisterEffect(e2)
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_EQUIP)
+	e3:SetCode(EFFECT_UPDATE_LEVEL)
+	e3:SetValue(3)
+	c:RegisterEffect(e3)
+end
+function s.filter(c)
+	return c:HasLevel() and c:IsSetCard(0xb84)
 end
 function c14841416.spfilter(c,e,tp)
 	return not c:IsType(TYPE_SYNCHRO) and c:IsSetCard(0xb84) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP)
@@ -47,12 +58,5 @@ function c14841416.operation(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetValue(c14841416.eqlimit)
 		e1:SetLabelObject(tc)
 		c:RegisterEffect(e1)
-	end
-end
-function c14841416.desop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local tc=c:GetFirstCardTarget()
-	if c:IsReason(REASON_DESTROY) and tc and tc:IsLocation(LOCATION_MZONE) then
-		Duel.Destroy(tc,REASON_EFFECT)
 	end
 end

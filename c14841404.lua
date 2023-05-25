@@ -16,7 +16,7 @@ function c14841404.initial_effect(c)
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_HAND)
-	e2:SetCountLimit(1,14841404)
+	e2:SetCountLimit(1,114841404)
 	e2:SetCondition(c14841404.spcon2)
 	e2:SetTarget(c14841404.sptg2)
 	e2:SetOperation(c14841404.spop2)
@@ -41,6 +41,7 @@ function c14841404.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 function c14841404.spcon2(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)==0
+		or Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,14841415),tp,LOCATION_ONFIELD,0,1,nil)
 end
 function c14841404.spfilter2(c,e,tp)
 	return c:IsSetCard(0xb84) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)

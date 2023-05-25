@@ -9,7 +9,6 @@ function c14841405.initial_effect(c)
 	e1:SetCountLimit(1,14841405,EFFECT_COUNT_CODE_OATH)
 	e1:SetCondition(c14841405.hspcon)
 	e1:SetOperation(c14841405.hspop)
-	e1:SetValue(1)
 	c:RegisterEffect(e1)
 	--search
 	local e2=Effect.CreateEffect(c)
@@ -37,7 +36,9 @@ function c14841405.hspop(e,tp,eg,ep,ev,re,r,rp,c)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
 function c14841405.condition(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():GetSummonType()==SUMMON_TYPE_SPECIAL+1
+	if not re then return false end
+	local rc=re:GetHandler()
+	return rc:IsSetCard(0xb84)
 end
 function c14841405.filter(c)
 	return c:IsSetCard(0xb84) and c:IsType(TYPE_SPELL) and c:IsAbleToHand()
