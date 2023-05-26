@@ -18,15 +18,15 @@ function s.initial_effect(c)
 	e2:SetTarget(s.sptg)
 	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
-    --Atk change
-    local e3=Effect.CreateEffect(c)
-    e3:SetType(EFFECT_TYPE_FIELD)
-    e3:SetCode(EFFECT_UPDATE_ATTACK)
-    e3:SetRange(LOCATION_SZONE)
-    e3:SetTargetRange(0,LOCATION_MZONE)
-    e3:SetValue(s.atkval)
-    c:RegisterEffect(e3)
-    --Def change
+	--Atk change
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_FIELD)
+	e3:SetCode(EFFECT_UPDATE_ATTACK)
+	e3:SetRange(LOCATION_SZONE)
+	e3:SetTargetRange(0,LOCATION_MZONE)
+	e3:SetValue(s.atkval)
+	c:RegisterEffect(e3)
+	--Def change
 	local e4=e3:Clone()
 	e4:SetCode(EFFECT_UPDATE_DEFENSE)
 	e4:SetValue(s.defval)
@@ -64,10 +64,10 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.atkval(e,c)
-    return Duel.GetMatchingGroupCount(Card.IsSetCard,e:GetHandler():GetControler(),LOCATION_ONFIELD+LOCATION_GRAVE,0,nil,0xa52)*-100
+	return Duel.GetMatchingGroupCount(Card.IsSetCard,e:GetHandler():GetControler(),LOCATION_ONFIELD,0,nil,0xa52)*-100
 end
 function s.defval(e,c)
-    return Duel.GetMatchingGroupCount(Card.IsSetCard,e:GetHandler():GetControler(),LOCATION_ONFIELD+LOCATION_GRAVE,0,nil,0xa52)*-100
+	return Duel.GetMatchingGroupCount(Card.IsSetCard,e:GetHandler():GetControler(),LOCATION_ONFIELD,0,nil,0xa52)*-100
 end
 function s.thfilter(c)
 	return c:IsSetCard(0xa52) and c:IsMonster() and c:IsAbleToHand()

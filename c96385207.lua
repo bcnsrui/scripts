@@ -34,7 +34,7 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_LINK)
 end
 function s.filter(c,e,tp)
-	return c:IsSetCard(0xa52) and c:IsMonster() and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0xa52) and c:IsMonster() and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()

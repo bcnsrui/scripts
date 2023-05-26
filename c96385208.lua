@@ -37,7 +37,7 @@ function s.lcheck(g,lc,sumtype,tp)
 	return g:IsExists(Card.IsSetCard,1,nil,0xa52,lc,sumtype,tp)
 end
 function s.spfilter(c,e,tp)
-	return c:IsSetCard(0xa52) and c:IsMonster() and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0xa52) and c:IsMonster() and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local ex=Duel.GetFieldGroupCount(tp,0,LOCATION_MZONE)>0
@@ -51,7 +51,7 @@ end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then
-		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
+		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP_DEFENSE)
 	end
 end
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)

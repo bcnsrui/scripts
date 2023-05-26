@@ -42,7 +42,7 @@ function s.discost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Release(rc,REASON_COST)
 end
 function s.disfilter(c,e,tp)
-	return c:IsSetCard(0xa52) and c:IsMonster() and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0xa52) and c:IsMonster() and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)
 end
 function s.distg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
@@ -72,7 +72,7 @@ function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.SpecialSummonComplete()
 		else
 		if #g>0 then
-		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP_DEFENSE)
 		end
 	end
 end

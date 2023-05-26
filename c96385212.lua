@@ -19,7 +19,7 @@ function s.initial_effect(c)
 	--Make the opponent tribute a monster
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,2))
-	e3:SetCategory(CATEGORY_REMOVE)
+	e3:SetCategory(CATEGORY_DESTROY)
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCode(EVENT_RELEASE)
@@ -70,21 +70,21 @@ function s.relcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.relfilter,1,nil,tp)
 end
 function s.cfilter(c)
-	return c:IsSpellTrap() and c:IsAbleToRemove()
+	return c:IsType(TYPE_SPELL+TYPE_TRAP)
 end
 function s.reltg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() and s.cfilter(chkc) end
 	if chk==0 then return Duel.IsExistingTarget(s.cfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectTarget(tp,s.cfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
 function s.relop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e) then return end
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then
-		Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)
+		Duel.Destroy(tc,REASON_EFFECT)
 	end
 end
 function s.thfilter(c)
