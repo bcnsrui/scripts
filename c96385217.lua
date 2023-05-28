@@ -40,11 +40,11 @@ function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return ep~=tp and re and re:IsActiveType(TYPE_MONSTER) and Duel.IsChainNegatable(ev)
 end
 function s.filter(c)
-	return (c:IsSetCard(0xa52) or c:IsCode(96385200)) and c:IsReleasable()
+	return (c:IsSetCard(0xa52) or c:IsCode(96385200)) and c:IsMonster() and c:IsReleasable()
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_ONFIELD,0,1,e:GetHandler()) end
-	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_ONFIELD,0,1,1,e:GetHandler())
+	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_MZONE,0,1,e:GetHandler()) end
+	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_MZONE,0,1,1,e:GetHandler())
 	Duel.Release(g,REASON_COST)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
