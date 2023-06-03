@@ -5,6 +5,16 @@ function cm.initial_effect(c)
 	--xyz summon
 	Xyz.AddProcedure(c,nil,3,2)
 	c:EnableReviveLimit()
+	--lv change
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_FIELD)
+	e0:SetCode(EFFECT_XYZ_LEVEL)
+	e0:SetProperty(EFFECT_FLAG_SET_AVAILABLE+EFFECT_FLAG_IGNORE_IMMUNE)
+	e0:SetRange(LOCATION_EXTRA)
+	e0:SetTargetRange(LOCATION_MZONE,0)
+	e0:SetTarget(cm.lvtg)
+	e0:SetValue(cm.lvval)
+	c:RegisterEffect(e0)
 	--remove
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_REMOVE)
@@ -52,7 +62,14 @@ function cm.initial_effect(c)
 	e6:SetValue(112603608)
 	c:RegisterEffect(e6)
 end
-
+function cm.lvtg(e,c)
+	return c:GetBaseAttack()==0
+end
+function cm.lvval(e,c,rc)
+	local lv=c:GetLevel()
+	if rc:IsCode(m) then return 3
+	else return lv end
+end
 --kaos
 function cm.onecost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,e:GetHandler()) end
@@ -69,7 +86,10 @@ function cm.rmfilter(c)
 	return c:IsType(TYPE_MONSTER) and (c:IsRace(RACE_MACHINE) or c:IsRace(RACE_THUNDER) or c:IsRace(RACE_CYBERSE)) and c:IsAbleToRemove()
 end
 function cm.rmtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
+	if chk==0 then
+		local g=Duel.GetMatchingGroup(cm.rmfilter,tp,0,LOCATION_ONFIELD+LOCATION_GRAVE,e:GetHandler())
+		return #g>0
+	end
 	local g=Duel.GetMatchingGroup(cm.rmfilter,tp,0,LOCATION_ONFIELD+LOCATION_GRAVE,e:GetHandler())
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,#g,0,0)
 	Duel.SetChainLimit(cm.chainlimit)
