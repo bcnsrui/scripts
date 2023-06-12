@@ -40,15 +40,13 @@ function cm.condition(e,tp,eg,ep,ev,re,r,rp)
 end
 function cm.djop(e,tp,eg,ep,ev,re,r,rp)
 	local p=Duel.GetTurnPlayer()
-		local token=Duel.CreateToken(p,112700140)
-			Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)
-			Duel.ConfirmCards(1-p,token)
-	end
+	local token=Duel.CreateToken(p,112700140)
+	Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)
+	Duel.ConfirmCards(1-p,token)
 end
 function cm.djop2(e,tp,eg,ep,ev,re,r,rp)
 	local p=Duel.GetTurnPlayer()
-		local token=Duel.CreateToken(p,112700142)
-			Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)
-			Duel.ConfirmCards(1-p,token)
-	end
+	local token=Duel.CreateToken(p,112700142)
+	Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)
+	Duel.ConfirmCards(1-p,token)
 end

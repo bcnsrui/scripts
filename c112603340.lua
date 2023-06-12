@@ -55,7 +55,7 @@ function cm.initial_effect(c)
 	e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CANNOT_NEGATE)
 	e2:SetRange(LOCATION_PZONE)
 	e2:SetTargetRange(1,0)
-	e2:SetTarget(c65518099.splimit)
+	e2:SetTarget(cm.splimit)
 	c:RegisterEffect(e2)
 end
 

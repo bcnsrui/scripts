@@ -31,7 +31,7 @@ end
 
 --tohand
 function cm.filter(c)
-	return (c:IsSetCard(0xe97)) or c:IsAttribute(ATTRIBUTE_FIRE)) and not c:IsCode(m) and c:IsAbleToHand()
+	return (c:IsSetCard(0xe97) or c:IsAttribute(ATTRIBUTE_FIRE)) and not c:IsCode(m) and c:IsAbleToHand()
 end
 function cm.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(cm.filter,tp,LOCATION_DECK,0,1,nil) end
