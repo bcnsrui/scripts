@@ -6,7 +6,7 @@ function cm.initial_effect(c)
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_DESTROY)
 	e1:SetDescription(aux.Stringid(m,1))
-	e1:SetCountLimit(1,m)
+	e1:SetCountLimit(1,m,EFFECT_COUNT_CODE_OATH)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
@@ -17,13 +17,13 @@ function cm.initial_effect(c)
 	--summon
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(m,1))
-	e3:SetCountLimit(1,m)
+	e3:SetCountLimit(1,m,EFFECT_COUNT_CODE_OATH)
 	e3:SetCategory(CATEGORY_SUMMON)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_GRAVE)
 	e3:SetCost(aux.bfgcost)
-	e3:SetTarget(cm.target)
-	e3:SetOperation(cm.operation)
+	e3:SetTarget(cm.target1)
+	e3:SetOperation(cm.operation1)
 	c:RegisterEffect(e3)
 end
 
@@ -36,10 +36,10 @@ function cm.condition(e,tp,eg,ep,ev,re,r,rp)
 end
 function cm.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local c=e:GetHandler()
-	if chkc then return chkc:IsOnField() and chkc:IsFaceup() and chkc~=c end
-	if chk==0 then return Duel.IsExistingTarget(Card.IsFaceup,tp,0,LOCATION_ONFIELD,1,c) end
+	if chkc then return chkc:IsOnField() and chkc:IsFaceup() and chkc:IsControler(1-tp) end
+	if chk==0 then return Duel.IsExistingTarget(Card.IsFaceup,tp,0,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectTarget(tp,Card.IsFaceup,tp,0,LOCATION_ONFIELD,1,1,c)
+	local g=Duel.SelectTarget(tp,Card.IsFaceup,tp,0,LOCATION_ONFIELD,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
 function cm.activate(e,tp,eg,ep,ev,re,r,rp)
@@ -53,11 +53,11 @@ end
 function cm.filter(c)
 	return c:IsSetCard(0xe81) and c:IsSummonable(true,nil)
 end
-function cm.target(e,tp,eg,ep,ev,re,r,rp,chk)
+function cm.target1(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(cm.filter,tp,LOCATION_HAND,0,1,nil) end
 	Duel.SetOperationInfo(0,CATEGORY_SUMMON,nil,1,0,0)
 end
-function cm.operation(e,tp,eg,ep,ev,re,r,rp)
+function cm.operation1(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SUMMON)
 	local g=Duel.SelectMatchingCard(tp,cm.filter,tp,LOCATION_HAND,0,1,1,nil)
 	local tc=g:GetFirst()
