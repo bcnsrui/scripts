@@ -78,10 +78,10 @@ function s.dfilter(c)
 	return true
 end
 function s.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsOnField() and s.dfilter(chkc) and chkc~=e:GetHandler() and chkc:IsControler(1-tp) end
-	if chk==0 then return Duel.IsExistingTarget(s.dfilter,tp,0,LOCATION_ONFIELD,1,e:GetHandler()) end
+	if chkc then return chkc:IsOnField() and s.dfilter(chkc) and chkc:IsControler(1-tp) end
+	if chk==0 then return Duel.IsExistingTarget(s.dfilter,tp,0,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectTarget(tp,s.dfilter,tp,0,LOCATION_ONFIELD,1,1,e:GetHandler())
+	local g=Duel.SelectTarget(tp,s.dfilter,tp,0,LOCATION_ONFIELD,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
 function s.eqop(e,tp,eg,ep,ev,re,r,rp)
@@ -149,11 +149,11 @@ function s.thfilter1(c)
 	return c:IsSetCard(0xe79) and c:IsAbleToHand()
 end
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsOnField() and chkc:IsControler(tp) and s.tgtg(chkc) and chkc~=e:GetHandler() end
-	if chk==0 then return Duel.IsExistingTarget(s.tgtg,tp,LOCATION_ONFIELD,0,1,e:GetHandler())
+	if chkc then return chkc:IsOnField() and chkc:IsControler(tp) and s.tgtg(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.tgtg,tp,LOCATION_ONFIELD,0,1,nil)
 		and Duel.IsExistingMatchingCard(s.thfilter1,tp,LOCATION_DECK,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectTarget(tp,s.tgtg,tp,LOCATION_ONFIELD,0,1,1,e:GetHandler())
+	local g=Duel.SelectTarget(tp,s.tgtg,tp,LOCATION_ONFIELD,0,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
