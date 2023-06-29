@@ -39,7 +39,7 @@ function c14931418.scop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c14931418.filter(c)
-	return c:IsType(TYPE_MONSTER) and c:IsType(TYPE_MONSTER) and c:IsAbleToDeck()
+	return c:IsSetCard(0xb93) and c:IsType(TYPE_MONSTER) and c:IsAbleToDeck()
 end
 function c14931418.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c14931418.filter(chkc) end
