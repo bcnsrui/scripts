@@ -34,7 +34,7 @@ end
 
 --spsummon1
 function cm.cfilter(c)
-	return c:IsFaceup() and c:IsCode(112603206)
+	return c:IsFaceup() and c:IsSetCard(0xe9c)
 end
 function cm.spcon1(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(cm.cfilter,tp,LOCATION_MZONE,0,1,nil)

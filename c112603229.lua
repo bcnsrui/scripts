@@ -56,7 +56,7 @@ end
 
 --HYPER UP
 function cm.mfilter(c)
-	return c:IsSetCard(0xe9c) and c:IsLink(1) and c:IsType(TYPE_LINK)
+	return c:IsSetCard(0xe9c)
 end
 function cm.lcheck(g,lc)
 	return g:GetClassCount(Card.GetCode)==g:GetCount()
@@ -98,12 +98,12 @@ function cm.equip_monster(c,tp,tc)
 	tc:RegisterEffect(e1)
 	--substitute
 	local e2=Effect.CreateEffect(c)
- 	e2:SetType(EFFECT_TYPE_EQUIP)
- 	e2:SetCode(EFFECT_DESTROY_SUBSTITUTE)
- 	e2:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
- 	e2:SetReset(RESET_EVENT+RESETS_STANDARD)
- 	e2:SetValue(cm.repval)
- 	tc:RegisterEffect(e2)		
+	e2:SetType(EFFECT_TYPE_EQUIP)
+	e2:SetCode(EFFECT_DESTROY_SUBSTITUTE)
+	e2:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
+	e2:SetReset(RESET_EVENT+RESETS_STANDARD)
+	e2:SetValue(cm.repval)
+	tc:RegisterEffect(e2)	   
 end
 function cm.eqop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

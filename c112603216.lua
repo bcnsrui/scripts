@@ -9,7 +9,7 @@ function cm.initial_effect(c)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetCategory(CATEGORY_EQUIP)
 	e1:SetType(EFFECT_TYPE_IGNITION)
-	e1:SetRange(LOCATION_MZONE)
+	e1:SetRange(LOCATION_MZONE+LOCATION_HAND)
 	e1:SetTarget(cm.eqtg)
 	e1:SetOperation(cm.eqop)
 	c:RegisterEffect(e1)
@@ -69,27 +69,26 @@ end
 --equip
 function cm.filter(c)
 	local ct1,ct2=c:GetUnionCount()
-	return c:IsFaceup() and c:IsAttribute(ATTRIBUTE_LIGHT) and c:IsAttackAbove(2500) and ct2==0
+	return c:IsFaceup() and c:IsAttribute(ATTRIBUTE_LIGHT) and ct2==0
 end
 function cm.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and cm.filter(chkc) end
-	if chk==0 then return e:GetHandler():GetFlagEffect(m)==0 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0
-		and Duel.IsExistingTarget(cm.filter,tp,LOCATION_MZONE,0,1,e:GetHandler()) end
+	local c=e:GetHandler()
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc~=c and cm.filter(chkc) end
+	if chk==0 then return e:GetHandler():GetFlagEffect(m)==0 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingTarget(cm.filter,tp,LOCATION_MZONE,0,1,c) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
-	local g=Duel.SelectTarget(tp,cm.filter,tp,LOCATION_MZONE,0,1,1,e:GetHandler())
+	local g=Duel.SelectTarget(tp,cm.filter,tp,LOCATION_MZONE,0,1,1,c)
 	Duel.SetOperationInfo(0,CATEGORY_EQUIP,g,1,0,0)
 	e:GetHandler():RegisterFlagEffect(m,RESET_EVENT+0x7e0000+RESET_PHASE+PHASE_END,0,1)
 end
 function cm.eqop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
+	if not c:IsRelateToEffect(e) then return end
 	local tc=Duel.GetFirstTarget()
-	if not c:IsRelateToEffect(e) or c:IsFacedown() then return end
-	if not tc:IsRelateToEffect(e) or not cm.filter(tc) then
+	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 or tc:IsFacedown() or not tc:IsRelateToEffect(e) or not tc:IsControler(tp) then
 		Duel.SendtoGrave(c,REASON_EFFECT)
 		return
 	end
-	if not Duel.Equip(tp,c,tc,false) then return end
-	aux.SetUnionState(c)
+	Duel.Equip(tp,c,tc,true)
 end
 
 --unequip
@@ -110,9 +109,10 @@ function cm.costfilter(c,tp)
 	return c:IsFaceup() and c:IsSetCard(0xe9c)
 end
 function cm.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.CheckReleaseGroup(tp,cm.costfilter,1,nil,tp) end
-	local g=Duel.SelectReleaseGroup(tp,cm.costfilter,1,1,nil,tp)
-	Duel.Release(g,REASON_COST)
+	local c=e:GetHandler()
+	if chk==0 then return Duel.IsExistingMatchingCard(cm.costfilter,tp,LOCATION_ONFIELD,0,1,nil) end
+	local rc=Duel.SelectMatchingCard(tp,cm.costfilter,tp,LOCATION_ONFIELD,0,1,1,nil):GetFirst()
+	Duel.Release(rc,REASON_COST)
 end
 function cm.thfilter(c)
 	return c:IsSetCard(0xe9c) and c:IsType(TYPE_SPELL) and c:IsAbleToHand()

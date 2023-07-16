@@ -13,9 +13,13 @@ function cm.initial_effect(c)
 	e1:SetTarget(cm.target)
 	e1:SetOperation(cm.activate)
 	c:RegisterEffect(e1)
+	Duel.AddCustomActivityCounter(m,ACTIVITY_SPSUMMON,cm.counterfilter)
 	
 end
-
+function cm.counterfilter(c)
+	return (c:IsRace(RACE_MACHINE) or c:IsRace(RACE_CYBERSE) or c:IsRace(RACE_THUNDER))
+		and (c:IsAttribute(ATTRIBUTE_LIGHT) or c:IsAttribute(ATTRIBUTE_DARK))
+end
 --Activate
 function cm.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
@@ -30,7 +34,8 @@ function cm.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.RegisterEffect(e1,tp)
 end
 function cm.splimit(e,c,sump,sumtype,sumpos,targetp,se)
-	return not c:IsSetCard(0xe9c) and c:IsLocation(LOCATION_EXTRA)
+	return not ((c:IsRace(RACE_MACHINE) or c:IsRace(RACE_CYBERSE) or c:IsRace(RACE_THUNDER))
+		and (c:IsAttribute(ATTRIBUTE_LIGHT) or c:IsAttribute(ATTRIBUTE_DARK)))
 end
 function cm.filter(c)
 	return c:IsSetCard(0xe9c) and not c:IsCode(m) and c:IsAbleToHand()

@@ -25,7 +25,7 @@ end
 
 --FINAL RESQUE
 function cm.filter(c)
-	return c:IsFaceup() and c:IsSetCard(0xe9c) and (c:IsLevel(8) or c:IsRank(8)) or (c:IsAttackAbove(2000) and c:IsType(TYPE_LINK))
+	return c:IsFaceup() and c:IsSetCard(0xe9c)
 end
 function cm.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(cm.filter,tp,LOCATION_MZONE,0,1,nil)

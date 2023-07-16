@@ -23,7 +23,6 @@ function cm.initial_effect(c)
 	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
 	e1:SetCode(EFFECT_IMMUNE_EFFECT)
 	e1:SetRange(LOCATION_MZONE)
-	e1:SetCondition(cm.econ)
 	e1:SetValue(cm.efilter1)
 	c:RegisterEffect(e1)
 	
@@ -77,9 +76,6 @@ function cm.mfilter(c,lc,sumtype,tp)
 end
 
 --immune
-function cm.econ(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer()==tp
-end
 function cm.efilter1(e,te)
 	return te:GetOwnerPlayer()~=e:GetHandlerPlayer() and te:IsActiveType(TYPE_MONSTER)
 end
