@@ -63,10 +63,13 @@ end
 function cm.spfilter(c,e,tp)
 	return c:IsCode(112603212) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
+function cm.spfilter(c,e,tp)
+	return c:IsCode(112603208) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+end
 function cm.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
-	local tc=Duel.GetFirstMatchingCard(cm.spfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,nil,e,tp)
-	if tc then
+	local tc=Duel.SelectMatchingCard(cm.spfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,1,nil,e,tp)
+	if #tc>0 then
 		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
 	end
 end

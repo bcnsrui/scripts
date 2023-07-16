@@ -4,7 +4,7 @@ local cm=_G["c"..m]
 function cm.initial_effect(c)
 	--synchro summon
 	c:EnableReviveLimit()
-	Synchro.AddProcedure(c,cm.mfilter,1,1,aux.FilterBoolFunctionEx(Card.IsAttribute,ATTRIBUTE_DARK),1,99,cm.pfil1)
+	Synchro.AddProcedure(c,nil,1,1,aux.FilterBoolFunctionEx(Card.IsAttribute,ATTRIBUTE_DARK),1,99,cm.pfil1)
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_SYNCHRO_MATERIAL_CUSTOM)
