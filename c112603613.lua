@@ -5,7 +5,15 @@ function cm.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
 	Fusion.AddProcMixN(c,true,true,aux.FilterBoolFunctionEx(Card.IsRace,RACE_CYBERSE),2)
-	Fusion.AddContactProc(c,cm.contactfil,cm.contactop,0)
+	--special summon rule
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_SPSUMMON_PROC)
+	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
+	e1:SetRange(LOCATION_EXTRA)
+	e1:SetCondition(cm.contactfil)
+	e1:SetOperation(cm.contactop)
+	c:RegisterEffect(e1)
 	--to grave
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(m,1))
@@ -53,10 +61,13 @@ function cm.initial_effect(c)
 end
 
 --fusion material
-function cm.contactfil(tp)
+function cm.contactfil(e)
+	local c=e:GetHandler()
+	local tp=c:GetControler()
 	return Duel.GetMatchingGroup(function(c) return c:IsMonster() and c:IsAbleToDeckOrExtraAsCost() end,tp,LOCATION_ONFIELD,0,nil)
 end
-function cm.contactop(g,tp)
+function cm.contactop(e,tp,eg,ep,ev,re,r,rp,c)
+	local g=Duel.SelectMatchingCard(tp,function(c) return c:IsMonster() and c:IsAbleToDeckOrExtraAsCost() end,tp,LOCATION_ONFIELD,0,2,2,nil)
 	Duel.ConfirmCards(1-tp,g)
 	Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_COST+REASON_MATERIAL)
 end

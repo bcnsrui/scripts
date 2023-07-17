@@ -63,7 +63,7 @@ end
 
 --eqlimit
 function cm.eqlimit(e,c)
-	return (c:IsAttribute(ATTRIBUTE_LIGHT) and c:IsAttackAbove(2500)) or e:GetHandler():GetEquipTarget()==c
+	return (c:IsAttribute(ATTRIBUTE_LIGHT)) or e:GetHandler():GetEquipTarget()==c
 end
 
 --equip

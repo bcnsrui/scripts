@@ -3,7 +3,6 @@ local m=112603234
 local cm=_G["c"..m]
 function cm.initial_effect(c)
 	
-	c:SetUniqueOnField(1,1,m)
 	
 	--Activate
 	local e1=Effect.CreateEffect(c)

@@ -61,7 +61,7 @@ end
 
 --eqlimit
 function cm.eqlimit(e,c)
-	return (c:IsRace(RACE_CYBERSE) and c:IsAttackAbove(2500)) or e:GetHandler():GetEquipTarget()==c
+	return (c:IsRace(RACE_CYBERSE)) or e:GetHandler():GetEquipTarget()==c
 end
 
 --equip

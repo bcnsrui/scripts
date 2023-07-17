@@ -68,7 +68,7 @@ end
 
 --eqlimit
 function cm.eqlimit(e,c)
-	return (c:IsRace(RACE_MACHINE) and c:IsAttackAbove(2500)) or e:GetHandler():GetEquipTarget()==c
+	return (c:IsRace(RACE_MACHINE)) or e:GetHandler():GetEquipTarget()==c
 end
 
 --equip

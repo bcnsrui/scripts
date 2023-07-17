@@ -1,8 +1,9 @@
 --길고 긴 여행의 끝에 우리들은(유노미 퓨전)
+local s,id=GetID()
 function c14831408.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
-	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON+CATEGORY_DECKDES)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCountLimit(1,14831408,EFFECT_COUNT_CODE_OATH)
@@ -29,9 +30,6 @@ end
 function c14831408.splimit(e,c,sump,sumtype,sumpos,targetp,se)
 	return not c:IsType(TYPE_FUSION) and c:IsLocation(LOCATION_EXTRA)
 end
-function c14831408.cfilter(c)
-	return c:IsFaceup() and c:IsType(TYPE_MONSTER) and c:IsSummonType(SUMMON_TYPE_SPECIAL) and c:IsCanBeFusionMaterial()
-end
 function c14831408.spfilter(c,e,tp,m1,m2,f,chkf)
 	local mg=m1
 	if c.december_fmaterial then
@@ -48,19 +46,11 @@ function c14831408.target(e,tp,eg,ep,ev,re,r,rp,chk)
 		local chkf=tp
 		local mg1=Duel.GetFusionMaterial(tp)
 		local mg2=Duel.GetMatchingGroup(c14831408.ofilter,tp,LOCATION_HAND+LOCATION_ONFIELD,0,nil)
-		local sfg=Duel.GetMatchingGroup(c14831408.cfilter,tp,0,LOCATION_MZONE,nil)
-			if sfg:GetCount()>0 then
-				mg2:Merge(sfg)
+		local mg4=Duel.GetMatchingGroup(Card.IsCanBeFusionMaterial,tp,LOCATION_EXTRA,0,nil)
+			if mg4:GetCount()>0 then
+				mg2:Merge(mg4)
 			end
-		SatoneFusionFilter=function(c,e,tp)
-			return c:IsControler(1-tp)
-		end
-		SatoneFusionEffect=e
-		SatoneFusionPlayer=tp
-		local res=Duel.IsExistingMatchingCard(c14831408.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg2,mg2,nil,chkf)
-		SatoneFusionFilter=nil
-		SatoneFusionEffect=nil
-		SatoneFusionPlayer=nil
+		local res=Duel.IsExistingMatchingCard(c14831408.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg1,mg2,nil,chkf)
 		if not res then
 			local ce=Duel.GetChainMaterial(tp)
 			if ce~=nil then
@@ -77,21 +67,15 @@ end
 function c14831408.filter(c,e)
 	return not c:IsImmuneToEffect(e)
 end
-function c14831408.cfilter2(c,e)
-	return c14831408.cfilter(c) and not c:IsImmuneToEffect(e)
-end
 function c14831408.activate(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local chkf=tp
 	local mg1=Duel.GetFusionMaterial(tp):Filter(c14831408.filter,nil,e)
-	local sfg=Duel.GetMatchingGroup(c14831408.cfilter2,tp,0,LOCATION_MZONE,nil,e)
-	mg1:Merge(sfg)
 	local mg2=Duel.GetMatchingGroup(c14831408.ofilter,tp,LOCATION_HAND+LOCATION_ONFIELD,0,nil):Filter(c14831408.filter,nil,e)
-		SatoneFusionFilter=function(c,e,tp)
-			return c:IsControler(1-tp)
+	local mg4=Duel.GetMatchingGroup(Card.IsCanBeFusionMaterial,tp,LOCATION_EXTRA,0,nil)
+		if mg4:GetCount()>0 then
+			mg2:Merge(mg4)
 		end
-		SatoneFusionEffect=e
-		SatoneFusionPlayer=tp
 	local sg1=Duel.GetMatchingGroup(c14831408.spfilter,tp,LOCATION_EXTRA,0,nil,e,tp,mg1,mg2,nil,chkf)
 	local mg3=nil
 	local sg2=nil
@@ -114,11 +98,11 @@ function c14831408.activate(e,tp,eg,ep,ev,re,r,rp)
 				mg1:Merge(mg2)
 			end
 			local mat=Duel.SelectFusionMaterial(tp,tc,mg1,nil,chkf)
-			local mat1=mat:Filter(c14831408.sfilter,nil,tp)
+			local mat1=mat:Filter(c14831408.cfilter,nil,e)
 			while mat1:GetCount()>1 do
 			if Duel.SelectYesNo(tp,aux.Stringid(14831408,0)) then
 			mat=Duel.SelectFusionMaterial(tp,tc,mg1,nil,chkf)
-			mat1=mat:Filter(c14831408.sfilter,nil,tp)
+			mat1=mat:Filter(c14831408.cfilter,nil,e)
 			else return Duel.SendtoHand(c,nil,REASON_RULE) end
 			end
 			tc:SetMaterial(mat)
@@ -131,11 +115,8 @@ function c14831408.activate(e,tp,eg,ep,ev,re,r,rp)
 			fop(ce,e,tp,tc,mat2)
 		end
 		tc:CompleteProcedure()
-	end
-	SatoneFusionFilter=nil
-	SatoneFusionEffect=nil
-	SatoneFusionPlayer=nil
+		end
 end
-function c14831408.sfilter(c,tp)
-	return c:IsLocation(LOCATION_MZONE) and c:IsControler(1-tp)
+function c14831408.cfilter(c)
+	return c:IsLocation(LOCATION_EXTRA)
 end
