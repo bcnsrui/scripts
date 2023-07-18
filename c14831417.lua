@@ -127,7 +127,7 @@ end
 function s.pencon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	return (r&REASON_FUSION)==REASON_FUSION and c:IsFaceup()
-		and c:IsLocation(LOCATION_EXTRA)
+		and c:IsLocation(LOCATION_EXTRA) and c:IsPreviousLocation(LOCATION_MZONE)
 end
 function s.pentg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.CheckPendulumZones(tp) end

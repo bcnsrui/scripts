@@ -24,6 +24,7 @@ function c14831410.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e3:SetRange(LOCATION_FZONE)
 	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCountLimit(1)
 	e3:SetCondition(s.spcon)
 	e3:SetTarget(s.sptg)
@@ -53,8 +54,7 @@ function c14831410.indct(e,re,r,rp)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	if not re then return false end
-	local rc=re:GetHandler()
-	return rc:IsSetCard(0xb83) and re:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
+	return rp==tp and re:GetHandler():IsSetCard(0xb83) and eg:IsExists(Card.IsSummonType,1,nil,SUMMON_TYPE_FUSION)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then return Duel.IsPlayerCanDraw(tp,1) end

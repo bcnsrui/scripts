@@ -58,11 +58,11 @@ function c14831409.activate(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ConfirmCards(1-tp,g)
 	end
 end
-function c14831409.cfilter(c)
+function c14831409.cfilter2(c)
 	return c:IsRankAbove(1) and c:IsType(TYPE_FUSION)
 end
 function c14831409.condition(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_MZONE,0,1,nil)
+	return Duel.IsExistingMatchingCard(c14831409.cfilter2,tp,LOCATION_MZONE,0,1,nil)
 end
 function c14831409.tdfilter(c)
 	return c:IsFaceup() and c:IsAbleToDeck()
@@ -72,7 +72,7 @@ function c14831409.tdtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then return Duel.IsPlayerCanDraw(tp,1) and Duel.IsExistingTarget(c14831409.tdfilter,tp,LOCATION_REMOVED,0,3,e:GetHandler()) end
 	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g=Duel.SelectTarget(tp,c14831409.tdfilter,tp,LOCATION_REMOVED,0,3,1,e:GetHandler())
+	local g=Duel.SelectTarget(tp,c14831409.tdfilter,tp,LOCATION_REMOVED,0,3,3,e:GetHandler())
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
 end
