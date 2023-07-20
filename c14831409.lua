@@ -43,7 +43,7 @@ function c14831409.splimit(e,c,sump,sumtype,sumpos,targetp,se)
 	return not (c:IsType(TYPE_FUSION) and c:IsRankAbove(1)) and c:IsLocation(LOCATION_EXTRA)
 end
 function c14831409.cfilter(c)
-	return c:IsLevel(3) and c:GetAttack()==c:GetDefense() and c:IsAbleToHand()
+	return c:IsLevel(3) and c:ListsCode(CARD_Yunomi) and c:IsAbleToHand()
 end
 function c14831409.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c14831409.cfilter,tp,LOCATION_DECK,0,1,nil) end

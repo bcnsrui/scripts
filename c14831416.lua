@@ -85,7 +85,7 @@ function s.splimit(e,se,sp,st)
 	return (st&SUMMON_TYPE_FUSION)==SUMMON_TYPE_FUSION and se:GetHandler():IsSetCard(0xb83)
 end
 function s.matfilter(c,fc,sumtype,tp)
-	return c:IsDefense(c:GetAttack()) and c:IsAttackAbove(0) and c:IsDefenseAbove(0) and c:GetLevel()==3
+	return c:ListsCode(CARD_Yunomi) and c:GetLevel()==3
 end
 function s.tdfilter(c)
 	return c:IsFaceup() and c:IsAbleToDeck()
@@ -117,7 +117,7 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return rc:IsSetCard(0xb83) and e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
 end
 function s.filter(c,e,tp,ft)
-	return c:IsDefense(c:GetAttack()) and c:IsAttackAbove(0) and c:IsDefenseAbove(0) and c:GetLevel()==3 and (c:IsAbleToHand() or (ft>0 and c:IsCanBeSpecialSummoned(e,0,tp,false,false)))
+	return c:ListsCode(CARD_Yunomi) and c:GetLevel()==3 and (c:IsAbleToHand() or (ft>0 and c:IsCanBeSpecialSummoned(e,0,tp,false,false)))
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)

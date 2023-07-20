@@ -1,4 +1,5 @@
 --소원을 지피며 노래하는 소녀
+local s,id=GetID()
 function c14831413.initial_effect(c)
 	--special summon
 	local e1=Effect.CreateEffect(c)
@@ -30,11 +31,12 @@ function c14831413.initial_effect(c)
 	c:RegisterEffect(e3)
 	Duel.AddCustomActivityCounter(14831413,ACTIVITY_SPSUMMON,c14831413.counterfilter)
 end
+s.listed_names={id,CARD_Yunomi}
 function c14831413.counterfilter(c)
 	return not c:IsSummonLocation(LOCATION_EXTRA) or c:IsType(TYPE_FUSION)
 end
 function c14831413.spfilter(c)
-	return c:IsFaceup() and c:IsAbleToHandAsCost()
+	return c:IsSetCard(0xb83) and c:IsFaceup() and c:IsAbleToHandAsCost()
 end
 function c14831413.spcon(e,c)
 	if c==nil then return true end

@@ -62,7 +62,7 @@ function s.splimit(e,se,sp,st)
 	return (st&SUMMON_TYPE_FUSION)==SUMMON_TYPE_FUSION and se:GetHandler():IsSetCard(0xb83)
 end
 function s.matfilter(c,fc,sumtype,tp)
-	return c:IsDefense(c:GetAttack()) and c:IsAttackAbove(0) and c:IsDefenseAbove(0) and c:GetLevel()==3
+	return c:ListsCode(CARD_Yunomi) and c:GetLevel()==3
 end
 function s.imcon(e,tp,eg,ep,ev,re,r,rp)
 	if not re then return false end
@@ -106,7 +106,7 @@ function s.filter(c)
 	return c:IsSetCard(0xb83) and c:IsSetCard(0x46)
 end
 function s.filter1(c,e,tp,sync)
-	return (c:IsCode(14831401) or (sync and c:IsDefense(c:GetAttack()) and c:IsAttackAbove(0) and c:IsDefenseAbove(0) and c:GetLevel()==3)) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return (c:IsCode(14831401) or (sync and c:ListsCode(CARD_Yunomi) and c:GetLevel()==3)) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local sync=Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_GRAVE,0,1,nil)

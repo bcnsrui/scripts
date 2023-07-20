@@ -1,4 +1,5 @@
 --카드캡터 체리
+local s,id=GetID()
 function c14831414.initial_effect(c)
 	--fusion substitute
 	local e1=Effect.CreateEffect(c)
@@ -19,6 +20,7 @@ function c14831414.initial_effect(c)
 	e2:SetOperation(c14831414.thop)
 	c:RegisterEffect(e2)
 end
+s.listed_names={id,CARD_Yunomi}
 function c14831414.subcon(e)
 	return e:GetHandler():IsLocation(LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE)
 end

@@ -1,3 +1,6 @@
+--Yunomi is Kami Tema
+CARD_Yunomi                  = 14831400
+
 --This is not xyz monster
 	local type=Card.GetType
 	Card.GetType=function(c)

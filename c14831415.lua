@@ -105,7 +105,7 @@ function c14831415.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
 function c14831415.tgfilter(c)
-	return c:IsLevel(3) and c:GetAttack()==c:GetDefense() and c:IsAbleToHand()
+	return c:IsLevel(3) and c:ListsCode(CARD_Yunomi) and c:IsAbleToHand()
 end
 function c14831415.tg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c14831415.tgfilter(chkc) end

@@ -1,4 +1,5 @@
 --여행을 떠나는 혹성 래빗
+local s,id=GetID()
 function c14831401.initial_effect(c)
 	--search
 	local e1=Effect.CreateEffect(c)
@@ -26,6 +27,7 @@ function c14831401.initial_effect(c)
 	e3:SetOperation(c14831401.spop)
 	c:RegisterEffect(e3)
 end
+s.listed_names={id,CARD_Yunomi}
 function c14831401.filter(c)
 	return c:IsSetCard(0xb83) and c:IsAbleToHand()
 end

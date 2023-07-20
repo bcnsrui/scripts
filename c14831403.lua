@@ -111,7 +111,7 @@ function c14831403.disop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c14831403.thfilter(c)
-	return c:IsLevel(3) and c:GetAttack()==c:GetDefense() and c:IsAbleToHand()
+	return c:IsLevel(3) and c:ListsCode(CARD_Yunomi) and c:IsAbleToHand()
 end
 function c14831403.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then return Duel.IsExistingMatchingCard(c14831403.thfilter,tp,LOCATION_DECK,0,1,nil) end
