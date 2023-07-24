@@ -113,7 +113,7 @@ function cm.synop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,cm.synfilter,tp,LOCATION_EXTRA,0,1,1,nil)
 	local tc=g:GetFirst()
 	if tc then
-		Duel.LinkSummon(tp,tc)
+		Duel.SynchroSummon(tp,tc)
 	end
 end
 --spsummon
