@@ -2,51 +2,23 @@
 local m=112603217
 local cm=_G["c"..m]
 function cm.initial_effect(c)
-
+	aux.AddUnionProcedure(c,cm.filter)
 	--equip
-	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(m,0))
-	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e1:SetCategory(CATEGORY_EQUIP)
-	e1:SetType(EFFECT_TYPE_IGNITION)
-	e1:SetRange(LOCATION_MZONE+LOCATION_HAND)
-	e1:SetTarget(cm.eqtg)
-	e1:SetOperation(cm.eqop)
-	c:RegisterEffect(e1)
-	
-	--unequip
-	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(m,1))
-	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e2:SetType(EFFECT_TYPE_IGNITION)
-	e2:SetRange(LOCATION_SZONE)
-	e2:SetTarget(cm.sptg0)
-	e2:SetOperation(cm.spop0)
-	c:RegisterEffect(e2)
-	
+	local e0=Effect.CreateEffect(c)
+	e0:SetDescription(aux.Stringid(m,0))
+	e0:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e0:SetCategory(CATEGORY_EQUIP)
+	e0:SetType(EFFECT_TYPE_IGNITION)
+	e0:SetRange(LOCATION_HAND)
+	e0:SetTarget(cm.eqtg)
+	e0:SetOperation(cm.eqop)
+	c:RegisterEffect(e0)
 	--Def up
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_EQUIP)
 	e3:SetCode(EFFECT_UPDATE_DEFENSE)
 	e3:SetValue(500)
 	c:RegisterEffect(e3)
-	
-	--destroy sub
-	local e5=Effect.CreateEffect(c)
-	e5:SetType(EFFECT_TYPE_EQUIP)
-	e5:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
-	e5:SetCode(EFFECT_DESTROY_SUBSTITUTE)
-	e5:SetValue(1)
-	c:RegisterEffect(e5)
-	
-	--eqlimit
-	local e6=Effect.CreateEffect(c)
-	e6:SetType(EFFECT_TYPE_SINGLE)
-	e6:SetCode(EFFECT_EQUIP_LIMIT)
-	e6:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e6:SetValue(cm.eqlimit)
-	c:RegisterEffect(e6)
-	
 	--spsummon
 	local e7=Effect.CreateEffect(c)
 	e7:SetDescription(aux.Stringid(m,2))
@@ -66,17 +38,15 @@ end
 
 --equip
 function cm.filter(c)
-	local ct1,ct2=c:GetUnionCount()
-	return c:IsFaceup() and c:IsRace(RACE_THUNDER) and ct2==0
+	return c:IsFaceup() and c:IsRace(RACE_THUNDER)
 end
 function cm.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local c=e:GetHandler()
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc~=c and cm.filter(chkc) end
-	if chk==0 then return e:GetHandler():GetFlagEffect(m)==0 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingTarget(cm.filter,tp,LOCATION_MZONE,0,1,c) end
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and chkc~=c and cm.filter(chkc) end
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0
+		and Duel.IsExistingTarget(cm.filter,tp,LOCATION_MZONE,0,1,c) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
-	local g=Duel.SelectTarget(tp,cm.filter,tp,LOCATION_MZONE,0,1,1,c)
-	Duel.SetOperationInfo(0,CATEGORY_EQUIP,g,1,0,0)
-	e:GetHandler():RegisterFlagEffect(m,RESET_EVENT+0x7e0000+RESET_PHASE+PHASE_END,0,1)
+	Duel.SelectTarget(tp,cm.filter,tp,LOCATION_MZONE,0,1,1,c)
 end
 function cm.eqop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -87,21 +57,15 @@ function cm.eqop(e,tp,eg,ep,ev,re,r,rp)
 		return
 	end
 	Duel.Equip(tp,c,tc,true)
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_EQUIP_LIMIT)
+	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+	e1:SetValue(cm.eqlimit)
+	e1:SetLabelObject(tc)
+	c:RegisterEffect(e1)
 end
-
---unequip
-function cm.sptg0(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():GetFlagEffect(m)==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,true,false) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
-	e:GetHandler():RegisterFlagEffect(m,RESET_EVENT+0x7e0000+RESET_PHASE+PHASE_END,0,1)
-end
-function cm.spop0(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if not c:IsRelateToEffect(e) then return end
-	Duel.SpecialSummon(c,0,tp,tp,true,false,POS_FACEUP)
-end
-
 --spsummon
 function cm.spfilter(c,e,tp)
 	return c:IsSetCard(0xe9c) and not c:IsCode(m) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)

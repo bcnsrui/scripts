@@ -63,9 +63,6 @@ end
 function cm.spfilter(c,e,tp)
 	return c:IsCode(112603210) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
-function cm.spfilter(c,e,tp)
-	return c:IsCode(112603208) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-end
 function cm.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local tc=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(cm.spfilter),tp,LOCATION_DECK+LOCATION_GRAVE,0,1,1,nil,e,tp)
