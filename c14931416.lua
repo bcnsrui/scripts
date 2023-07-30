@@ -21,7 +21,7 @@ function c14931416.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
 	e2:SetCode(EVENT_LEAVE_FIELD)
-	e2:SetCondition(s.spcon)
+	e2:SetCondition(c14931416.spcon)
 	e2:SetTarget(c14931416.sptg)
 	e2:SetOperation(c14931416.spop)
 	c:RegisterEffect(e2)
@@ -47,7 +47,7 @@ function c14931416.operation(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Destroy(tg,REASON_EFFECT)
 	end
 end
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+function c14931416.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	return c:IsPreviousPosition(POS_FACEUP) and c:IsPreviousLocation(LOCATION_ONFIELD)
 end
