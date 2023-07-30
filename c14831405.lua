@@ -1,7 +1,12 @@
 --빙글빙글 무적의 판타지 소녀
 local s,id=GetID()
+if not GetID then
+	id=c:GetOriginalCode()
+	s="c"..id
+end
 function s.initial_effect(c)
 	c:EnableReviveLimit()
+	c:Rankmonster()
 	Fusion.AddProcMix(c,true,true,s.matfilter,aux.FilterBoolFunctionEx(Card.IsType,TYPE_FUSION),aux.FilterBoolFunctionEx(Card.IsSetCard,0xb83))
 	local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_SINGLE)
@@ -32,31 +37,13 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 	--to hand
 	local e3=Effect.CreateEffect(c)
-	e3:SetCategory(CATEGORY_SEARCH+CATEGORY_TOHAND+CATEGORY_HANDES)
+	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetCode(EVENT_TO_GRAVE)
 	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
 	c:RegisterEffect(e3)
-		aux.GlobalCheck(s,function()
-		local ge=Effect.CreateEffect(c)
-		ge:SetType(EFFECT_TYPE_FIELD)
-		ge:SetCode(EFFECT_EXTRA_FUSION_MATERIAL)
-		ge:SetTargetRange(LOCATION_DECK+LOCATION_HAND,LOCATION_DECK+LOCATION_HAND)
-		ge:SetTarget(s.mttg)
-		ge:SetValue(s.mtval)
-		Duel.RegisterEffect(ge,0)
-	end)
-end
-s.CardType_kiniro=true
-s.december_fmaterial=true
-function s.mttg(e,c)
-	return c:IsSetCard(0xb83)
-end
-function s.mtval(e,c)
-	if not c then return false end
-	return c:IsOriginalCode(id)
 end
 function s.splimit(e,se,sp,st)
 	return (st&SUMMON_TYPE_FUSION)==SUMMON_TYPE_FUSION and se:GetHandler():IsSetCard(0xb83)
@@ -102,24 +89,19 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Destroy(eg,REASON_EFFECT)
 	end
 end
-function s.filter(c)
-	return c:IsSetCard(0xb83) and c:IsSetCard(0x46)
-end
-function s.filter1(c,e,tp,sync)
-	return (c:IsCode(14831401) or (sync and c:ListsCode(CARD_Yunomi) and c:GetLevel()==3)) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+function s.filter(c,e,tp)
+	return c:ListsCode(CARD_Yunomi) and c:GetLevel()==3 and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local sync=Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_GRAVE,0,1,nil)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingMatchingCard(s.filter1,tp,LOCATION_DECK,0,1,nil,e,tp,sync) end
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>-1
+		and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local sync=Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_GRAVE,0,1,nil)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,s.filter1,tp,LOCATION_DECK,0,1,1,nil,e,tp,sync)
-	if #g>0 then
+	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
+	if g:GetCount()>0 then
 		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 	end
 end

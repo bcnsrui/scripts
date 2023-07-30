@@ -27,8 +27,6 @@ function s.initial_effect(c)
 	local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_FIELD)
 	e4:SetCode(EFFECT_IMMUNE_EFFECT)
-	e4:SetProperty(EFFECT_FLAG_CLIENT_HINT)
-	e4:SetDescription(aux.Stringid(id,0))
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
 	e4:SetTarget(aux.TargetBoolFunction(Card.IsCode,id))
@@ -49,7 +47,7 @@ s.listed_names={id}
 function s.ifilter(e,re,rp)
 	return re:IsActiveType(TYPE_MONSTER) and
 		((re:IsHasType(EFFECT_TYPE_ACTIONS) and re:GetActivateLocation()==LOCATION_MZONE)
-			or (not re:IsHasType(EFFECT_TYPE_ACTIONS) and re:GetHandler():IsLocation(LOCATION_MZONE)))
+			or re:GetHandler():IsLocation(LOCATION_MZONE))
 end
 function s.efilter(e,re)
 	local et=re:GetCode()

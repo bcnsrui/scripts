@@ -1,7 +1,13 @@
 --행복의 금발동맹 우편배달부 시노부
+local s,id=GetID()
+if not GetID then
+	id=c:GetOriginalCode()
+	s="c"..id
+end
 function c14941424.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
+	c:Rankmonster()
 	Fusion.AddProcMix(c,true,true,aux.FilterBoolFunctionEx(Card.IsSetCard,0xb94),aux.FilterBoolFunctionEx(Card.IsType,TYPE_LINK))
 	--Activate
 	local e1=Effect.CreateEffect(c)
@@ -24,7 +30,6 @@ function c14941424.initial_effect(c)
 	e2:SetOperation(c14941424.thop)
 	c:RegisterEffect(e2)
 end
-c14941424.CardType_kiniro=true
 function c14941424.condition(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
 end
@@ -67,58 +72,4 @@ function c14941424.thop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.SendtoGrave(g,REASON_EFFECT+REASON_REVEAL)
 		end
 	end
-end
---this is not xyz monster
-	local type=Card.GetType
-	Card.GetType=function(c)
-	if c.CardType_kiniro then
-		return bit.bor(type(c),TYPE_XYZ)-TYPE_XYZ
-	end
-	return type(c)
-end
---
-	local otype=Card.GetOriginalType
-	Card.GetOriginalType=function(c)
-	if c.CardType_kiniro then
-		return bit.bor(otype(c),TYPE_XYZ)-TYPE_XYZ
-	end
-	return otype(c)
-end
---
-	local ftype=Card.GetFusionType
-	Card.GetFusionType=function(c)
-	if c.CardType_kiniro then
-		return bit.bor(ftype(c),TYPE_XYZ)-TYPE_XYZ
-	end
-	return ftype(c)
-end
---
-	local ptype=Card.GetPreviousTypeOnField
-	Card.GetPreviousTypeOnField=function(c)
-	if c.CardType_kiniro then
-		return bit.bor(ptype(c),TYPE_XYZ)-TYPE_XYZ
-	end
-	return ptype(c)
-end
---
-	local itype=Card.IsType
-	Card.IsType=function(c,t)
-	if c.CardType_kiniro then
-		if t==TYPE_XYZ then
-			return false
-		end
-		return itype(c,bit.bor(t,TYPE_XYZ)-TYPE_XYZ)
-	end
-	return itype(c,t)
-end
---
-	local iftype=Card.IsFusionType
-	Card.IsFusionType=function(c,t)
-	if c.CardType_kiniro then
-		if t==TYPE_XYZ then
-			return false
-		end
-		return iftype(c,bit.bor(t,TYPE_XYZ)-TYPE_XYZ)
-	end
-	return iftype(c,t)
 end

@@ -71,15 +71,8 @@ end
 function c14931413.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
 	local tc=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(c14931413.thfilter),tp,LOCATION_DECK|LOCATION_GRAVE,0,1,1,nil):GetFirst()
-	if tc and tc:IsSSetable() and Duel.SSet(tp,tc)>0 then
-		--Can be activated this turn
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetDescription(aux.Stringid(14931413,2))
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_QP_ACT_IN_SET_TURN)
-		e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
-		e1:SetReset(RESET_EVENT|RESETS_STANDARD)
-		tc:RegisterEffect(e1)
+	if #tc>0 then
+		Duel.SSet(tp,tc)
 	end
 end
 function c14931413.reptg(e,tp,eg,ep,ev,re,r,rp,chk)

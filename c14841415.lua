@@ -4,10 +4,10 @@ function c14841415.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(14841415,1))
-	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_HANDES)
+	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetTarget(s.thtg)
+	e1:SetCountLimit(1,14841415,EFFECT_COUNT_CODE_OATH)
 	e1:SetOperation(s.thop)
 	c:RegisterEffect(e1)
 	--indes
@@ -17,7 +17,7 @@ function c14841415.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_FZONE)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetCountLimit(1,14841415)
+	e2:SetCountLimit(1)
 	e2:SetTarget(c14841415.target)
 	e2:SetOperation(c14841415.operation)
 	c:RegisterEffect(e2)
@@ -42,23 +42,14 @@ end
 function s.thfilter(c)
 	return c:IsSetCard(0xb84) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
 end
-function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
-	Duel.SetOperationInfo(0,CATEGORY_HANDES,nil,0,tp,1)
-end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
-	if #g>0 and c:IsRelateToEffect(e) and Duel.SendtoHand(g,nil,REASON_EFFECT)>0 then
-		local og=Group.Filter(Duel.GetOperatedGroup(),Card.IsLocation,nil,LOCATION_HAND)
-		if #og>0 then
-			Duel.ConfirmCards(1-tp,g)
-			Duel.BreakEffect()
-			Duel.ShuffleHand(tp)
-			Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT|REASON_DISCARD)
-		end
+	if not e:GetHandler():IsRelateToEffect(e) then return end
+	local g=Duel.GetMatchingGroup(c14841415.thfilter,tp,LOCATION_DECK,0,nil)
+	if g:GetCount()>0 and Duel.SelectYesNo(tp,aux.Stringid(14841415,1)) then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+		local sg=g:Select(tp,1,1,nil)
+		Duel.SendtoHand(sg,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,sg)
 	end
 end
 function c14841415.cfilter(c)

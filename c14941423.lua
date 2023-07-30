@@ -1,7 +1,13 @@
 --정의의 금발동맹 호노카
+local s,id=GetID()
+if not GetID then
+	id=c:GetOriginalCode()
+	s="c"..id
+end
 function c14941423.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
+	c:Rankmonster()
 	Fusion.AddProcMix(c,true,true,aux.FilterBoolFunctionEx(Card.IsSetCard,0xb94),aux.FilterBoolFunctionEx(Card.IsType,TYPE_RITUAL+TYPE_FUSION+TYPE_SYNCHRO+TYPE_XYZ))
 	--disable
 	local e1=Effect.CreateEffect(c)
@@ -32,7 +38,6 @@ function c14941423.initial_effect(c)
 	e3:SetCondition(c14941423.actcon)
 	c:RegisterEffect(e3)
 end
-c14941423.CardType_kiniro=true
 function c14941423.ffilter2(c)
 	return c:GetSummonLocation()==LOCATION_EXTRA and c:IsLocation(LOCATION_MZONE)
 end
@@ -86,58 +91,4 @@ function c14941423.atkop(e,tp,eg,ep,ev,re,r,rp)
 end
 function c14941423.actcon(e)
 	return Duel.GetAttacker()==e:GetHandler() or Duel.GetAttackTarget()==e:GetHandler()
-end
---this is not xyz monster
-	local type=Card.GetType
-	Card.GetType=function(c)
-	if c.CardType_kiniro then
-		return bit.bor(type(c),TYPE_XYZ)-TYPE_XYZ
-	end
-	return type(c)
-end
---
-	local otype=Card.GetOriginalType
-	Card.GetOriginalType=function(c)
-	if c.CardType_kiniro then
-		return bit.bor(otype(c),TYPE_XYZ)-TYPE_XYZ
-	end
-	return otype(c)
-end
---
-	local ftype=Card.GetFusionType
-	Card.GetFusionType=function(c)
-	if c.CardType_kiniro then
-		return bit.bor(ftype(c),TYPE_XYZ)-TYPE_XYZ
-	end
-	return ftype(c)
-end
---
-	local ptype=Card.GetPreviousTypeOnField
-	Card.GetPreviousTypeOnField=function(c)
-	if c.CardType_kiniro then
-		return bit.bor(ptype(c),TYPE_XYZ)-TYPE_XYZ
-	end
-	return ptype(c)
-end
---
-	local itype=Card.IsType
-	Card.IsType=function(c,t)
-	if c.CardType_kiniro then
-		if t==TYPE_XYZ then
-			return false
-		end
-		return itype(c,bit.bor(t,TYPE_XYZ)-TYPE_XYZ)
-	end
-	return itype(c,t)
-end
---
-	local iftype=Card.IsFusionType
-	Card.IsFusionType=function(c,t)
-	if c.CardType_kiniro then
-		if t==TYPE_XYZ then
-			return false
-		end
-		return iftype(c,bit.bor(t,TYPE_XYZ)-TYPE_XYZ)
-	end
-	return iftype(c,t)
 end

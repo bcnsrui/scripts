@@ -1,8 +1,13 @@
 --딸기맛 별의 항성 래빗
 local s,id=GetID()
+if not GetID then
+	id=c:GetOriginalCode()
+	s="c"..id
+end
 function s.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
+	c:Rankmonster()
 	Pendulum.AddProcedure(c,false)
 	Fusion.AddProcMix(c,true,true,s.matfilter,aux.FilterBoolFunctionEx(Card.IsSetCard,0xb83))
 	local e0=Effect.CreateEffect(c)
@@ -62,24 +67,6 @@ function s.initial_effect(c)
 	e6:SetTarget(s.pentg)
 	e6:SetOperation(s.penop)
 	c:RegisterEffect(e6)
-		aux.GlobalCheck(s,function()
-		local ge=Effect.CreateEffect(c)
-		ge:SetType(EFFECT_TYPE_FIELD)
-		ge:SetCode(EFFECT_EXTRA_FUSION_MATERIAL)
-		ge:SetTargetRange(LOCATION_DECK+LOCATION_HAND,LOCATION_DECK+LOCATION_HAND)
-		ge:SetTarget(s.mttg)
-		ge:SetValue(s.mtval)
-		Duel.RegisterEffect(ge,0)
-	end)
-end
-s.CardType_kiniro=true
-s.december_fmaterial=true
-function s.mttg(e,c)
-	return c:IsSetCard(0xb83)
-end
-function s.mtval(e,c)
-	if not c then return false end
-	return c:IsOriginalCode(id)
 end
 function s.splimit(e,se,sp,st)
 	return (st&SUMMON_TYPE_FUSION)==SUMMON_TYPE_FUSION and se:GetHandler():IsSetCard(0xb83)
