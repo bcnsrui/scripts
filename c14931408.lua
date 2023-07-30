@@ -40,7 +40,7 @@ function c14931408.spcon(e,c)
 	if c==nil then return true end
 	local tp=c:GetControler()
 	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and (Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)==0 or Duel.IsExistingMatchingCard(c14931408.spfilter,tp,LOCATION_MZONE,0,1,nil))
+		and Duel.IsExistingMatchingCard(c14931408.spfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 function c14931408.sfilter(c)
 	return c:IsSetCard(0xb93) and c:IsType(TYPE_MONSTER) and c:IsAbleToDeckAsCost()
