@@ -1,9 +1,11 @@
 --나나미 아오이 & 타카사고 미즈호 / 밸런타인 메모리
+local s,id=GetID()
 local m=112603415
 local cm=_G["c"..m]
 function cm.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
+	c:Rankmonster()
 	aux.AddFusionProcCode2(c,m-2,m-4,true,true)
 	aux.AddContactFusionProcedure(c,Card.IsAbleToRemoveAsCost,LOCATION_ONFIELD,0,Duel.Remove,POS_FACEUP,REASON_COST)
 	--summon
@@ -32,9 +34,6 @@ function cm.initial_effect(c)
 	e2:SetOperation(cm.disop)
 	c:RegisterEffect(e2)
 end
-
-cm.CardType_kiniro=true
-
 --spsummon
 function cm.spfilter(c,e,tp)
 	return c:IsSetCard(0xe98) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)

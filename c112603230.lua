@@ -1,8 +1,10 @@
 --BLiTz(블리츠) Ż 커큘러스 디 엔드
+local s,id=GetID()
 local m=112603230
 local cm=_G["c"..m]
 function cm.initial_effect(c)
 	c:EnableReviveLimit()
+	c:Rankmonster()
 	--Special summon limit
 	local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_SINGLE)
@@ -84,9 +86,6 @@ function cm.initial_effect(c)
 	aux.AddContactFusionProcedure(c,cm.pfil1,LOCATION_ONFIELD,0,Duel.Remove,POS_FACEUP,REASON_COST)
 	
 end
-
-cm.CardType_kiniro=true
-
 --MAX HYPER UP THE END
 cm.fusion_materials={112603205,112603206,112603207,112603214,112603215,112603216,112603217,112603218,112603226,112603227,112603228}
 function cm.con1(e,g,gc,chkfnf)
