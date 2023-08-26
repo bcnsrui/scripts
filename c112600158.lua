@@ -13,6 +13,7 @@ function cm.initial_effect(c)
 	e4:SetCountLimit(1)
 	e4:SetCode(EVENT_FREE_CHAIN)
 	e4:SetCost(cm.cost)
+	e4:SetCondition(cm.con)
 	e4:SetTarget(cm.target)
 	e4:SetOperation(cm.activate)
 	c:RegisterEffect(e4)
@@ -32,7 +33,10 @@ function cm.initial_effect(c)
 	e1:SetOperation(cm.atkop)
 	c:RegisterEffect(e1)
 end
-
+function cm.con(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	return c:IsLocation(LOCATION_SZONE)
+end
 --Activate
 function cm.cfilter(c,tp)
 	return c:IsSetCard(0xe8a) and c:IsType(TYPE_MONSTER) and c:IsAbleToGraveAsCost()
@@ -58,7 +62,6 @@ function cm.activate(e,tp,eg,ep,ev,re,r,rp)
 	if g:GetClassCount(Card.GetCode)>=3 then
 		Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(m,3))
 		local rg=g:SelectSubGroup(tp,aux.dncheck,false,3,3)
-		Duel.ConfirmCards(1-tp,rg)
 		Duel.ShuffleDeck(tp)
 		local tg=rg:GetFirst()
 		while tg do
@@ -66,16 +69,14 @@ function cm.activate(e,tp,eg,ep,ev,re,r,rp)
 			tg=rg:GetNext()
 		end
 		Duel.SortDecktop(tp,tp,3)
-		Duel.ConfirmCards(1-tp,g)
 		Duel.SendtoGrave(e:GetHandler(),REASON_EFFECT)
 	end
 end
 
 --atk
 function cm.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsDiscardable() end
+	if chk==0 then return e:GetHandler():IsDiscardable() and Duel.IsCanRemoveCounter(tp,1,0,0xe8a,2,REASON_COST) end
 	Duel.SendtoGrave(e:GetHandler(),REASON_COST+REASON_DISCARD)
-	if chk==0 then return Duel.IsCanRemoveCounter(tp,1,0,0xe8a,2,REASON_COST) end
 	Duel.RemoveCounter(tp,1,0,0xe8a,2,REASON_COST)
 end
 function cm.atkcon(e,tp,eg,ep,ev,re,r,rp)

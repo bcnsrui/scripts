@@ -11,6 +11,7 @@ function cm.initial_effect(c)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCountLimit(1)
+	e1:SetCondition(cm.con)
 	e1:SetTarget(cm.thtg1)
 	e1:SetOperation(cm.thop1)
 	c:RegisterEffect(e1)
@@ -19,7 +20,10 @@ function cm.initial_effect(c)
 	--grave set
 	kaos.admtgrave(c)
 end
-
+function cm.con(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	return c:IsLocation(LOCATION_SZONE)
+end
 --search
 function cm.thfilter1(c)
 	return c:IsSetCard(0xe8a) and not c:IsCode(m) and c:IsAbleToHand()
