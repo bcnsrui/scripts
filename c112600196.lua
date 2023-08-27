@@ -49,8 +49,8 @@ function s.initial_effect(c)
 	e7:SetOperation(s.penop)
 	c:RegisterEffect(e7)
 end
-function s.matfilter1(c)
-	return c:IsSynchroType(TYPE_TUNER) or (c:IsSynchroType(TYPE_PENDULUM) and c:IsSetCard(0xe8b))
+function s.matfilter(c,scard,sumtype,tp)
+	return c:IsSetCard(0xe8b,scard,sumtype,tp)
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.CheckLPCost(tp,750) end
