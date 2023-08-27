@@ -1,17 +1,13 @@
 --紋章獣レオ
 local s,id=GetID()
 function s.initial_effect(c)
-	--Special Summon
-	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(9342162,0))
-	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e2:SetType(EFFECT_TYPE_IGNITION)
-	e2:SetRange(LOCATION_HAND)
-	e2:SetCountLimit(1,id)
-	e2:SetCondition(s.sscon)
-	e2:SetTarget(s.sstg)
-	e2:SetOperation(s.ssop)
-	c:RegisterEffect(e2)
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
+	e1:SetCode(EFFECT_SPSUMMON_PROC)
+	e1:SetRange(LOCATION_HAND)
+	e1:SetCondition(s.sscon)
+	c:RegisterEffect(e1)
 	--Special Summon
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(35952884,1))
@@ -28,7 +24,9 @@ function s.initial_effect(c)
 	end
 	s.event_leave_grave[c]=e4
 end
-function s.sscon(e,tp,eg,ep,ev,re,r,rp)
+function s.sscon(e,c)
+	if c==nil then return true end
+	local tp=e:GetHandlerPlayer()
 	return not Duel.IsExistingMatchingCard(aux.NOT(aux.FaceupFilter(Card.IsSetCard,0xd51)),tp,LOCATION_MZONE,0,1,nil)
 end
 function s.sstg(e,tp,eg,ep,ev,re,r,rp,chk)
