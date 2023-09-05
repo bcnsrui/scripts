@@ -5,6 +5,176 @@ EFFECT_DELIGHT_SUMMON=18452702
 EVENT_BE_CUSTOM_MATERIAL=18452703
 EFFECT_CANNOT_BE_DELIGHT_MATERIAL=18452704
 CUSTOMREASON_DELIGHT=0x1
+EFFECT_DELAY_TURN=18452705
+EVENT_DELAY_TURN=18452706
+
+Auxiliary.DelayZone={}
+for p=0,1 do
+	Auxiliary.DelayZone[p]={}
+end
+
+function Auxiliary.DelayByTurn(c,tp,ct)
+	local rct=Duel.GetCurrentPhase()==PHASE_STANDBY and ct+1 or ct
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_CANNOT_ATTACK)
+	e1:SetProperty(EFFECT_FLAG_IGNORE_RANGE)
+	c:RegisterEffect(e1)
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_SINGLE)
+	e2:SetCode(EFFECT_IGNORE_BATTLE_TARGET)
+	e2:SetProperty(EFFECT_FLAG_IGNORE_RANGE)
+	e2:SetValue(1)
+	c:RegisterEffect(e2)
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_SINGLE)
+	e3:SetCode(EFFECT_CANNOT_CHANGE_POSITION)
+	e3:SetProperty(EFFECT_FLAG_IGNORE_RANGE)
+	c:RegisterEffect(e3)
+	local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e5:SetCode(EVENT_ADJUST)
+	e5:SetCondition(Auxiliary.DelOpCon5)
+	e5:SetOperation(Auxiliary.DelOpOp5)
+	Duel.RegisterEffect(e5,tp)
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e4:SetCode(EVENT_PHASE+PHASE_STANDBY)
+	e4:SetCountLimit(1)
+	if Duel.GetCurrentPhase()==PHASE_STANDBY then
+		e4:SetLabel(Duel.GetTurnCount())
+	else
+		e4:SetLabel(0)
+	end
+	e4:SetCondition(Auxiliary.DelOpCon4)
+	e4:SetOperation(Auxiliary.DelOpOp4(e1,e2,e3,e5))
+	Duel.RegisterEffect(e4,tp)
+	local e6=Effect.CreateEffect(c)
+	e6:SetType(EFFECT_TYPE_SINGLE)
+	e6:SetCode(EFFECT_DELAY_TURN)
+	e6:SetProperty(EFFECT_FLAG_IGNORE_RANGE)
+	e6:SetValue(rct)
+	e4:SetLabelObject(e6)
+	e5:SetLabelObject(e6)
+	c:RegisterEffect(e6)
+	local e7=Effect.CreateEffect(c)
+	e7:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e7:SetCode(EVENT_ADJUST)
+	e7:SetLabel(rct)
+	e7:SetReset(RESET_PHASE+PHASE_END)
+	e7:SetOperation(Auxiliary.DelOpOp7)
+	Duel.RegisterEffect(e7,tp)
+	local e9=Effect.CreateEffect(c)
+	e9:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e9:SetCode(EVENT_ADJUST)
+	e9:SetOperation(Auxiliary.DelOpOp9)
+	Duel.RegisterEffect(e9,tp)
+	local cp=c:GetControler()
+	aux.DelayZone[cp][c]=true
+	c:SetStatus(STATUS_SPSUMMON_STEP,true)
+	c:SetStatus(STATUS_EFFECT_ENABLED,false)
+end
+function Auxiliary.DelayTillPhase(c,tp,phase,ct)
+	local rct=Duel.GetTurnCount()+ct
+	if phase>=Duel.GetCurrentPhase() then
+		rct=rct-1
+	end
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_CANNOT_ATTACK)
+	e1:SetProperty(EFFECT_FLAG_IGNORE_RANGE)
+	e1:SetReset(RESET_PHASE+phase,ct)
+	c:RegisterEffect(e1)
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_SINGLE)
+	e2:SetCode(EFFECT_IGNORE_BATTLE_TARGET)
+	e2:SetProperty(EFFECT_FLAG_IGNORE_RANGE)
+	e2:SetReset(RESET_PHASE+phase,ct)
+	e2:SetValue(1)
+	c:RegisterEffect(e2)
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_SINGLE)
+	e3:SetCode(EFFECT_CANNOT_CHANGE_POSITION)
+	e3:SetProperty(EFFECT_FLAG_IGNORE_RANGE)
+	e3:SetReset(RESET_PHASE+phase,ct)
+	c:RegisterEffect(e3)
+	local e6=Effect.CreateEffect(c)
+	e6:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e6:SetCode(EVENT_ADJUST)
+	e6:SetLabel(phase)
+	e6:SetCondition(Auxiliary.DelOpCon6)
+	e6:SetOperation(Auxiliary.DelOpOp6)
+	Duel.RegisterEffect(e6,tp)
+	local e8=Effect.CreateEffect(c)
+	e8:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e8:SetCode(EVENT_PHASE+phase)
+	e8:SetLabel(rct)
+	e6:SetLabelObject(e8)
+	e8:SetCountLimit(1)
+	e8:SetReset(RESET_PHASE+phase,ct)
+	e8:SetCondition(Auxiliary.DelOpCon8)
+	e8:SetOperation(Auxiliary.DelOpOp8(e1,e2,e3,e6))
+	Duel.RegisterEffect(e8,tp)
+	local e9=Effect.CreateEffect(c)
+	e9:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e9:SetCode(EVENT_ADJUST)
+	e9:SetOperation(Auxiliary.DelOpOp9)
+	Duel.RegisterEffect(e9,tp)
+	local cp=c:GetControler()
+	aux.DelayZone[cp][c]=true
+	c:SetStatus(STATUS_SPSUMMON_STEP,true)
+	c:SetStatus(STATUS_EFFECT_ENABLED,false)
+end
+function Auxiliary.DelOpOp9(e,tp,eg,ep,ev,re,r,rp)
+end
+function Auxiliary.DelOpCon8(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetLabel()==Duel.GetTurnCount()
+end
+function Auxiliary.DelOpOp8(e1,e2,e3,e5)
+	return
+		function(e,tp,eg,ep,ev,re,r,rp)
+			local c=e:GetHandler()
+			c:SetStatus(STATUS_SPSUMMON_STEP,false)
+			c:SetStatus(STATUS_SPSUMMON_TURN,true)
+			c:SetStatus(STATUS_EFFECT_ENABLED,true)
+			Duel.HintSelection(c)
+			e1:Reset()
+			e2:Reset()
+			e3:Reset()
+			e5:Reset()
+			e:Reset()
+		end
+end
+function Auxiliary.DelOpOp8(e1,e2,e3,e5)
+	return
+		function(e,tp,eg,ep,ev,re,r,rp)
+			local c=e:GetHandler()
+			local cp=c:GetControler()
+			aux.DelayZone[cp][c]=false
+			c:SetStatus(STATUS_SPSUMMON_STEP,false)
+			c:SetStatus(STATUS_SPSUMMON_TURN,true)
+			c:SetStatus(STATUS_EFFECT_ENABLED,true)
+			Duel.HintSelection(c)
+			e1:Reset()
+			e2:Reset()
+			e3:Reset()
+			e5:Reset()
+			e:Reset()
+		end
+end
+function Auxiliary.DelOpCon6(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local ph=e:GetLabel()
+	local ct=e:GetLabelObject():GetLabel()
+	return Duel.GetTurnCount()>ct or (Duel.GetTurnCount()==ct and Duel.GetCurrentPhase()>ph)
+end
+function Auxiliary.DelOpOp6(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local cp=c:GetControler()
+	aux.DelayZone[cp][c]=false
+	Duel.Destroy(c,REASON_RULE)
+	e:Reset()
+end
 
 function Card.IsCanBeDelightMaterial(c,del)
 	if c:IsForbidden() then
@@ -41,6 +211,8 @@ function Auxiliary.AddDelightProcedure(c,f,min,max,gf)
 	e2:SetCondition(Auxiliary.DelightCondition(f,min,max,gf))
 	e2:SetOperation(Auxiliary.DelightOperation(f,min,max,gf))
 	c:RegisterEffect(e2)
+	local mt=_G["c"..c:GetOriginalCode()]
+	mt.CardType_Delight=true
 	return e1
 end
 function Auxiliary.DelConditionFilter(c,f,dc)
@@ -105,57 +277,11 @@ function Auxiliary.DelightOperation(f,min,max,gf)
 				Duel.RaiseEvent(tg,EVENT_BE_CUSTOM_MATERIAL,e,CUSTOMREASON_DELIGHT,tp,tp,0)
 				if #rg>0 then
 					if e:GetLabel()==0 then
-						c:SetStatus(STATUS_SPSUMMON_STEP,true)
+						--[[c:SetStatus(STATUS_SPSUMMON_STEP,true)
+						c:SetStatus(STATUS_EFFECT_ENABLED,false)]]--
 						sg:AddCard(c)
 					end
-					local ct=Duel.GetCurrentPhase()==PHASE_STANDBY and #rg+1 or #rg
-					local e1=Effect.CreateEffect(c)
-					e1:SetType(EFFECT_TYPE_SINGLE)
-					e1:SetCode(EFFECT_CANNOT_ATTACK)
-					e1:SetProperty(EFFECT_FLAG_IGNORE_RANGE)
-					e1:SetReset(RESET_PHASE+PHASE_STANDBY,ct)
-					c:RegisterEffect(e1)
-					local e2=Effect.CreateEffect(c)
-					e2:SetType(EFFECT_TYPE_SINGLE)
-					e2:SetCode(EFFECT_IGNORE_BATTLE_TARGET)
-					e2:SetProperty(EFFECT_FLAG_IGNORE_RANGE)
-					e2:SetReset(RESET_PHASE+PHASE_STANDBY,ct)
-					e2:SetValue(1)
-					c:RegisterEffect(e2)
-					local e3=Effect.CreateEffect(c)
-					e3:SetType(EFFECT_TYPE_SINGLE)
-					e3:SetCode(EFFECT_CANNOT_CHANGE_POSITION)
-					e3:SetProperty(EFFECT_FLAG_IGNORE_RANGE)
-					e3:SetReset(RESET_PHASE+PHASE_STANDBY,ct)
-					c:RegisterEffect(e3)
-					local e4=Effect.CreateEffect(c)
-					e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-					e4:SetCode(EVENT_PHASE+PHASE_STANDBY)
-					e4:SetCountLimit(1)
-					e4:SetReset(RESET_PHASE+PHASE_STANDBY,ct)
-					if Duel.GetCurrentPhase()==PHASE_STANDBY then
-						e4:SetLabel(Duel.GetTurnCount())
-					else
-						e4:SetLabel(0)
-					end
-					e4:SetCondition(Auxiliary.DelOpCon4)
-					e4:SetOperation(Auxiliary.DelOpOp4(e1,e2,e3))
-					Duel.RegisterEffect(e4,tp)
-					local e5=Effect.CreateEffect(c)
-					e5:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-					e5:SetCode(EVENT_ADJUST)
-					e5:SetLabel(Duel.GetTurnCount()+ct)
-					e5:SetCondition(Auxiliary.DelOpCon5)
-					e5:SetOperation(Auxiliary.DelOpOp5)
-					e4:SetLabelObject(e5)
-					Duel.RegisterEffect(e5,tp)
-					local e7=Effect.CreateEffect(c)
-					e7:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-					e7:SetCode(EVENT_ADJUST)
-					e7:SetLabel(#rg)
-					e7:SetReset(RESET_PHASE+PHASE_END)
-					e7:SetOperation(Auxiliary.DelOpOp7)
-					Duel.RegisterEffect(e7,tp)
+					aux.DelayByTurn(c,tp,#rg)
 				end
 				if e:GetLabel()==10000 then
 					if #rg>0 then
@@ -165,7 +291,9 @@ function Auxiliary.DelightOperation(f,min,max,gf)
 						else
 							Duel.Hint(HINT_CARD,0,c:GetCode())
 						end
-						c:SetStatus(STATUS_SPSUMMON_STEP,true)
+						--[[c:SetStatus(STATUS_SPSUMMON_STEP,true)
+						c:SetStatus(STATUS_EFFECT_ENABLED,false)]]--
+						aux.DelayByTurn(c,tp,#rg)
 					else
 						Duel.SpecialSummon(c,SUMMON_TYPE_DELIGHT,tp,tp,false,false,POS_FACEUP)
 						c:CompleteProcedure()
@@ -180,12 +308,16 @@ end
 function Auxiliary.DelOpCon4(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetLabel()~=Duel.GetTurnCount()
 end
-function Auxiliary.DelOpOp4(e1,e2,e3)
+function Auxiliary.DelOpOp4(e1,e2,e3,e5)
 	return
 		function(e,tp,eg,ep,ev,re,r,rp)
 			local c=e:GetHandler()
-			local te=e:GetLabelObject()
+			local te=c:IsHasEffect(EFFECT_DELAY_TURN)
+			local val=te:GetValue()
 			c:SetTurnCounter(c:GetTurnCounter()-1)
+			te:SetValue(val-1)
+			Duel.RaiseSingleEvent(c,EVENT_DELAY_TURN,e,0,tp,tp,val-1)
+			Duel.RaiseEvent(Group.FromCards(c),EVENT_DELAY_TURN,e,0,tp,tp,val-1)
 			if c:GetTurnCounter()>0 then
 				return
 			end
@@ -202,13 +334,15 @@ function Auxiliary.DelOpOp4(e1,e2,e3)
 			e1:Reset()
 			e2:Reset()
 			e3:Reset()
-			te:Reset()
+			e5:Reset()
 			e:Reset()
 		end
 end
 function Auxiliary.DelOpCon5(e,tp,eg,ep,ev,re,r,rp)
-	local ct=e:GetLabel()
-	return Duel.GetTurnCount()>ct or (Duel.GetTurnCount()>=ct and Duel.GetCurrentPhase()>PHASE_STANDBY)
+	local c=e:GetHandler()
+	local te=c:IsHasEffect(EFFECT_DELAY_TURN)
+	local val=te:GetValue()
+	return val<0 or (val==0 and Duel.GetCurrentPhase()>PHASE_STANDBY)
 end
 function Auxiliary.DelOpOp5(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -219,6 +353,9 @@ function Auxiliary.DelOpOp7(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local ct=e:GetLabel()
 	local te=e:GetLabelObject()
+	local cp=c:GetControler()
+	aux.DelayZone[cp][c]=false
+	c:SetStatus(STATUS_SPSUMMON_STEP,true)
 	c:SetStatus(STATUS_EFFECT_ENABLED,false)
 	c:SetTurnCounter(ct)
 	e:Reset()
@@ -245,4 +382,211 @@ function Duel.DelightSummon(tp,dc,g)
 		end
 	end
 	return false
+end
+
+function Auxiliary.NotOnFieldFilter(c)
+	--return c:IsStatus(STATUS_SPSUMMON_STEP)
+	local te=c:IsHasEffect(EFFECT_DELAY_TURN)
+	if not te then
+		return false
+	end
+	local val=te:GetValue()
+	return val>0 or (val==0 and Duel.GetCurrentPhase()<PHASE_STANDBY)
+end
+
+local cregeff=Card.RegisterEffect
+function Card.RegisterEffect(c,e,forced,...)
+	local code=c:GetOriginalCode()
+	local mt=_G["c"..code]
+	cregeff(c,e,forced,...)
+	if e:GetCode()==EVENT_SPSUMMON_SUCCESS then
+		local con=e:GetCondition()
+		e:SetCondition(function(e,tp,eg,ep,ev,re,r,rp)
+			local g
+			if eg then
+				g=eg:Clone()
+				g:Remove(Auxiliary.NotOnFieldFilter,nil)
+				if #g==0 then
+					return false
+				end
+			end
+			return not con or con(e,tp,g,ep,ev,re,r,rp)
+		end)
+		local cost=e:GetCost()
+		e:SetCost(function(e,tp,eg,ep,ev,re,r,rp,chk)
+			local g
+			if eg then
+				g=eg:Clone()
+				g:Remove(Auxiliary.NotOnFieldFilter,nil)
+				if #g==0 then
+					return false
+				end
+			end
+			if chk==0 then
+				return not cost or cost(e,tp,g,ep,ev,re,r,rp,0)
+			end
+			if cost then
+				cost(e,tp,g,ep,ev,re,r,rp,1)
+			end
+		end)
+		local tar=e:GetTarget()
+		e:SetTarget(function(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+			local g
+			if eg then
+				g=eg:Clone()
+				g:Remove(Auxiliary.NotOnFieldFilter,nil)
+				if #g==0 then
+					return false
+				end
+			end
+			if chkc then
+				return not tar or tar(e,tp,g,ep,ev,re,r,rp,1,chkc)
+			end
+			if chk==0 then
+				return not tar or tar(e,tp,g,ep,ev,re,r,rp,0,chkc)
+			end
+			if tar then
+				tar(e,tp,g,ep,ev,re,r,rp,1,chkc)
+			end
+		end)
+		local op=e:GetOperation()
+		e:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
+			local g
+			if eg then
+				g=eg:Clone()
+				g:Remove(Auxiliary.NotOnFieldFilter,nil)
+				if #g==0 then
+					return false
+				end
+			end
+			if op then
+				op(e,tp,g,ep,ev,re,r,rp,1)
+			end
+		end)
+	end
+end
+local dregeff=Duel.RegisterEffect
+function Duel.RegisterEffect(e,p,...)
+	dregeff(e,p,...)
+	if e:GetCode()==EVENT_SPSUMMON_SUCCESS then
+		local con=e:GetCondition()
+		e:SetCondition(function(e,tp,eg,ep,ev,re,r,rp)
+			local g
+			if eg then
+				g=eg:Clone()
+				g:Remove(Auxiliary.NotOnFieldFilter,nil)
+				if #g==0 then
+					return false
+				end
+			end
+			return not con or con(e,tp,g,ep,ev,re,r,rp)
+		end)
+		local cost=e:GetCost()
+		e:SetCost(function(e,tp,eg,ep,ev,re,r,rp,chk)
+			local g
+			if eg then
+				g=eg:Clone()
+				g:Remove(Auxiliary.NotOnFieldFilter,nil)
+				if #g==0 then
+					return false
+				end
+			end
+			if chk==0 then
+				return not cost or cost(e,tp,g,ep,ev,re,r,rp,0)
+			end
+			if cost then
+				cost(e,tp,g,ep,ev,re,r,rp,1)
+			end
+		end)
+		local tar=e:GetTarget()
+		e:SetTarget(function(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+			local g
+			if eg then
+				g=eg:Clone()
+				g:Remove(Auxiliary.NotOnFieldFilter,nil)
+				if #g==0 then
+					return false
+				end
+			end
+			if chkc then
+				return not tar or tar(e,tp,g,ep,ev,re,r,rp,1,chkc)
+			end
+			if chk==0 then
+				return not tar or tar(e,tp,g,ep,ev,re,r,rp,0,chkc)
+			end
+			if tar then
+				tar(e,tp,g,ep,ev,re,r,rp,1,chkc)
+			end
+		end)
+		local op=e:GetOperation()
+		e:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
+			local g
+			if eg then
+				g=eg:Clone()
+				g:Remove(Auxiliary.NotOnFieldFilter,nil)
+				if #g==0 then
+					return false
+				end
+			end
+			if op then
+				op(e,tp,g,ep,ev,re,r,rp,1)
+			end
+		end)
+	end
+end
+
+--융합 타입 삭제
+
+	local type=Card.GetType
+	Card.GetType=function(c)
+	if c.CardType_Delight then
+		return bit.bor(type(c),TYPE_FUSION)-TYPE_FUSION
+	end
+	return type(c)
+end
+--
+	local otype=Card.GetOriginalType
+	Card.GetOriginalType=function(c)
+	if c.CardType_Delight then
+		return bit.bor(otype(c),TYPE_FUSION)-TYPE_FUSION
+	end
+	return otype(c)
+end
+--
+	local ftype=Card.GetFusionType
+	Card.GetFusionType=function(c)
+	if c.CardType_Delight then
+		return bit.bor(ftype(c),TYPE_FUSION)-TYPE_FUSION
+	end
+	return ftype(c)
+end
+--
+	local ptype=Card.GetPreviousTypeOnField
+	Card.GetPreviousTypeOnField=function(c)
+	if c.CardType_Delight then
+		return bit.bor(ptype(c),TYPE_FUSION)-TYPE_FUSION
+	end
+	return ptype(c)
+end
+--
+	local itype=Card.IsType
+	Card.IsType=function(c,t)
+	if c.CardType_Delight then
+		if t==TYPE_FUSION then
+			return false
+		end
+		return itype(c,bit.bor(t,TYPE_FUSION)-TYPE_FUSION)
+	end
+	return itype(c,t)
+end
+--
+	local iftype=Card.IsFusionType
+	Card.IsFusionType=function(c,t)
+	if c.CardType_Delight then
+		if t==TYPE_FUSION then
+			return false
+		end
+		return iftype(c,bit.bor(t,TYPE_FUSION)-TYPE_FUSION)
+	end
+	return iftype(c,t)
 end

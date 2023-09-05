@@ -11,7 +11,6 @@ function cm.initial_effect(c)
 	e4:SetCode(EVENT_FREE_CHAIN)
 	e4:SetRange(LOCATION_SZONE)
 	e4:SetCountLimit(1)
-	e4:SetCost(cm.drcost)
 	e4:SetTarget(cm.drtg)
 	e4:SetOperation(cm.drop)
 	c:RegisterEffect(e4)
@@ -25,11 +24,6 @@ end
 function cm.costfilter1(c)
 	return (c:IsSetCard(0xe8a)) and c:IsDiscardable()
 end
-function cm.drcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(cm.costfilter1,tp,LOCATION_HAND,0,1,nil) end
-	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
-	Duel.DiscardHand(tp,cm.costfilter1,1,1,REASON_DISCARD+REASON_COST)
-end
 function cm.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDraw(tp,2) end
 	Duel.SetTargetPlayer(tp)
@@ -37,8 +31,20 @@ function cm.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,2)
 end
 function cm.drop(e,tp,eg,ep,ev,re,r,rp)
-	if not e:GetHandler():IsRelateToEffect(e) then return end
 	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
 	Duel.Draw(p,d,REASON_EFFECT)
+	Duel.ShuffleHand(p)
+	Duel.BreakEffect()
+	local g=Duel.SelectMatchingCard(p,cm.costfilter1,p,LOCATION_HAND,0,1,1,nil)
+	local tg=g:GetFirst()
+	if tg then
+		if Duel.SendtoGrave(tg,REASON_EFFECT+REASON_DISCARD) then
+			Duel.ConfirmCards(1-p,tg)
+			Duel.ShuffleHand(p)
+		end
+	else
+		local sg=Duel.GetFieldGroup(tp,LOCATION_HAND,0)
+		Duel.SendtoGrave(sg,REASON_EFFECT+REASON_DISCARD)
+	end
 	Duel.SendtoGrave(e:GetHandler(),REASON_EFFECT)
 end

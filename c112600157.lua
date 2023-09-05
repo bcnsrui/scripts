@@ -68,7 +68,7 @@ end
 
 --add counter
 function cm.ctfilter(c,tp)
-	return c:IsControler(tp) and c:IsRace(RACE_PLANT)
+	return c:IsControler(tp) and c:IsSetCard(0xe8a)
 end
 function cm.ctop(e,tp,eg,ep,ev,re,r,rp)
 	if eg:IsExists(cm.ctfilter,1,nil,tp) then

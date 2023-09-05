@@ -70,7 +70,7 @@ end
 
 --special summon rule
 function cm.chainfilter(re,tp,cid)
-	return not (re:GetHandler():IsSetCard(0xe8a) and re:IsActiveType(TYPE_EFFECT)
+	return not (re:GetHandler():IsRace(RACE_PLANT) and re:IsActiveType(TYPE_EFFECT)
 		and Duel.GetChainInfo(cid,CHAININFO_TRIGGERING_LOCATION)==LOCATION_MZONE)
 end
 function cm.spfilter(c,fc,tp)
