@@ -17,7 +17,7 @@ function s.initial_effect(c)
 end
 s.fit_monster={112030000}
 s.listed_names={112030000}
-s.listed_series={0x599,0x600}
+s.listed_series={0x599,0x59a}
 --Five-Headed
 function s.IsFiveHeaded(c)
 	return c:IsSetCard(0x599) or c:IsCode(0x5eab24e,0xa2cc52)
@@ -27,7 +27,7 @@ function s.IsSameAttribute(c1,c2)
 end
 --Ritual Summon
 function s.ritualfil(c)
-	return (c:IsSetCard(0x600) or c:IsCode(112030000)) and c:IsRitualMonster()
+	return (c:IsSetCard(0x59a) or c:IsCode(112030000)) and c:IsRitualMonster()
 end
 function s.extrafil(e,tp,eg,ep,ev,re,r,rp,chk)
 	return Duel.GetFieldGroup(tp,LOCATION_DECK,0)
