@@ -76,15 +76,10 @@ function cm.oval1(c,sc,tc)
 end
 function cm.ofun1(sg,lv,sc)
 	local res=false
-	local tc=sg:GetFirst()
-	while tc do
+	for tc in sg:Iter() do
 		if tc:IsSetCard(0xe77) then
-			res=sg:CheckWithSumEqual(cm.oval1,lv,#sg,#sg,sc,tc)
+			res=res or sg:CheckWithSumEqual(cm.oval1,lv,#sg,#sg,sc,tc)
 		end
-		if res then
-			break
-		end
-		tc=sg:GetNext()
 	end
 	return res
 end
