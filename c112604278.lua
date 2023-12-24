@@ -3,15 +3,15 @@ local s,id=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
 	Link.AddProcedure(c,s.matfilter,1,1)
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetRange(LOCATION_EXTRA)
-	e1:SetCode(EFFECT_EXTRA_MATERIAL)
-	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET|EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_SET_AVAILABLE)
-	e1:SetTargetRange(1,1)
-	e1:SetOperation(s.extracon)
-	e1:SetValue(s.extraval)
-	c:RegisterEffect(e1)
+	local ea=Effect.CreateEffect(c)
+	ea:SetType(EFFECT_TYPE_FIELD)
+	ea:SetRange(LOCATION_EXTRA)
+	ea:SetCode(EFFECT_EXTRA_MATERIAL)
+	ea:SetProperty(EFFECT_FLAG_PLAYER_TARGET|EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_SET_AVAILABLE)
+	ea:SetTargetRange(1,1)
+	ea:SetOperation(s.extracon)
+	ea:SetValue(s.extraval)
+	c:RegisterEffect(ea)
 	local cicbsm=Card.IsCanBeLinkMaterial
 	function Card.IsCanBeLinkMaterial(mc,sc,...)
 		if mc:GetLevel()==0 and sc==c then
@@ -50,10 +50,10 @@ function s.matfilter(c,scard,sumtype,tp)
 end
 s.curgroup=nil
 function s.extracon(c,e,tp,sg,mg,lc,og,chk)
-	return not s.curgroup or #(sg&s.curgroup)<2
+	return not s.curgroup
 end
 function s.extafilter(c)
-	return c:IsSetCard(0xe78) and c:IsFaceup()
+	return c:IsSetCard(0xe78)
 end
 function s.extraval(chk,summon_type,e,...)
 	if chk==0 then
@@ -61,7 +61,7 @@ function s.extraval(chk,summon_type,e,...)
 		if summon_type~=SUMMON_TYPE_LINK or sc~=e:GetHandler() then
 			return Group.CreateGroup()
 		else
-			s.curgroup=Duel.GetMatchingGroup(s.extrafilter,tp,LOCATION_SZONE,0,nil)
+			s.curgroup=Duel.GetMatchingGroup(s.extrafilter,tp,LOCATION_FZONE+LOCATION_SZONE,0,nil)
 			s.curgroup:KeepAlive()
 			return s.curgroup
 		end
