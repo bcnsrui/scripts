@@ -57,16 +57,27 @@ function s.ffilter(c)
 	return c:IsRankAbove(1)
 end
 function s.fextra(e,tp,mg)
-	local sg=Duel.GetMatchingGroup(s.additional_filter,tp,LOCATION_ONFIELD+LOCATION_HAND+LOCATION_EXTRA,0,nil,e)
+	local Yunomi=Duel.GetMatchingGroup(Fusion.IsMonsterFilter(Card.IsFaceup),tp,0,LOCATION_ONFIELD,nil)
+	local tc=Yunomi:GetFirst()
+	for tc in aux.Next(Yunomi) do
+	local e1=Effect.CreateEffect(tc)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e1:SetCode(EFFECT_ADD_SETCODE)
+	e1:SetRange(LOCATION_ONFIELD)
+	e1:SetValue(0xb83)
+	e1:SetReset(RESET_CHAIN)
+	tc:RegisterEffect(e1) end
+	local sg=Duel.GetMatchingGroup(s.additional_filter,tp,LOCATION_ONFIELD+LOCATION_HAND,0,nil,e)
+	sg:Merge(Yunomi)
 	return sg,s.fcheck
 end
 function s.fcheck(tp,sg,fc)
-	return sg:FilterCount(Card.IsLocation,nil,LOCATION_EXTRA)<=1
+	return sg:FilterCount(Card.IsControler,nil,1-tp)<=1
 end
 function s.additional_filter(c,e)
 	return c:IsAbleToGrave() and (c:IsSpellTrap() or c:IsLocation(LOCATION_EXTRA))
 		and (not e:IsHasType(EFFECT_TYPE_ACTIVATE) or e:GetHandler()~=c)
-		and not (c:IsSetCard(0x46) and c:IsSetCard(0xb83) and c:IsLocation(LOCATION_ONFIELD))
 end
 function s.extratg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end

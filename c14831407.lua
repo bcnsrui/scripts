@@ -9,9 +9,7 @@ function s.initial_effect(c)
 		handler=c,
 		fusfilter=s.ffilter,
 		extrafil=s.fextra,
-		extratg=s.extratg,
-		extraop=s.extraop,
-		stage2=s.stage2})
+		extratg=s.extratg})
 	e1:SetCost(s.cost)
 	e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
 	c:RegisterEffect(e1)
@@ -59,25 +57,17 @@ function s.ffilter(c)
 	return c:IsRankAbove(1)
 end
 function s.fextra(e,tp,mg)
-	local sg=Duel.GetMatchingGroup(s.additional_filter,tp,LOCATION_ONFIELD+LOCATION_HAND,0,nil,e)
-	return sg,aux.TRUE
+	local sg=Duel.GetMatchingGroup(s.additional_filter,tp,LOCATION_ONFIELD+LOCATION_HAND+LOCATION_EXTRA,0,nil,e)
+	return sg,s.fcheck
+end
+function s.fcheck(tp,sg,fc)
+	return sg:FilterCount(Card.IsLocation,nil,LOCATION_EXTRA)<=1
 end
 function s.additional_filter(c,e)
-	return c:IsAbleToGrave() and c:IsSpellTrap()
+	return c:IsAbleToGrave() and (c:IsSpellTrap() or c:IsLocation(LOCATION_EXTRA))
 		and (not e:IsHasType(EFFECT_TYPE_ACTIVATE) or e:GetHandler()~=c)
-		and not (c:IsSetCard(0x46) and c:IsSetCard(0xb83) and c:IsLocation(LOCATION_ONFIELD))
 end
 function s.extratg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,0,tp,LOCATION_ONFIELD+LOCATION_HAND)
-end
-function s.extraop(e,tc,tp,sg)
-	e:SetLabel(sg:FilterCount(Card.IsSpell,nil))
-end
-function s.stage2(e,tc,tp,sg,chk)
-	local ct=e:GetLabel()
-	if chk==1 and ct>1 then
-		Duel.BreakEffect()
-		Duel.Draw(tp,1,REASON_EFFECT)
-	end
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,0,tp,LOCATION_ONFIELD+LOCATION_HAND+LOCATION_EXTRA)
 end

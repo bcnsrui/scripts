@@ -67,7 +67,6 @@ end
 function s.additional_filter(c,e)
 	return c:IsAbleToGrave() and (c:IsSpellTrap() or c:IsLocation(LOCATION_DECK))
 		and (not e:IsHasType(EFFECT_TYPE_ACTIVATE) or e:GetHandler()~=c)
-		and not (c:IsSetCard(0x46) and c:IsSetCard(0xb83) and c:IsLocation(LOCATION_ONFIELD))
 end
 function s.extratg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end

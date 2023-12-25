@@ -33,7 +33,8 @@ function c14831415.initial_effect(c)
 	e4:SetRange(LOCATION_GRAVE)
 	e4:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e4:SetCountLimit(1,114831415)
-	e4:SetCost(c14831415.cost)
+	e4:SetCondition(c14831415.condition)
+	e4:SetCost(aux.bfgcost)
 	e4:SetTarget(c14831415.tg)
 	e4:SetOperation(c14831415.op)
 	c:RegisterEffect(e4)
@@ -93,25 +94,20 @@ end
 function c14831415.damcon2(e)
 	return 1-e:GetHandlerPlayer()==e:GetOwnerPlayer()
 end
-function c14831415.cfilter(c)
-	return c:IsSetCard(0xb83) and c:IsSetCard(0x46) and c:IsAbleToRemoveAsCost()
+function c14831415.cfilter2(c)
+	return c:IsRankAbove(1) and c:IsType(TYPE_FUSION)
 end
-function c14831415.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost()
-		and Duel.IsExistingMatchingCard(c14831415.cfilter,tp,LOCATION_GRAVE,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,c14831415.cfilter,tp,LOCATION_GRAVE,0,1,1,nil)
-	g:AddCard(e:GetHandler())
-	Duel.Remove(g,POS_FACEUP,REASON_COST)
+function c14831415.condition(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.IsExistingMatchingCard(c14831415.cfilter2,tp,LOCATION_MZONE,0,1,nil)
 end
 function c14831415.tgfilter(c)
 	return c:IsLevel(3) and c:ListsCode(CARD_Yunomi) and c:IsAbleToHand()
 end
 function c14831415.tg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c14831415.tgfilter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(c14831415.tgfilter,tp,LOCATION_GRAVE,0,1,nil) end
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE+LOCATION_REMOVED) and chkc:IsControler(tp) and c14831415.tgfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(c14831415.tgfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectTarget(tp,c14831415.tgfilter,tp,LOCATION_GRAVE,0,1,1,nil)
+	local g=Duel.SelectTarget(tp,c14831415.tgfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
 end
 function c14831415.op(e,tp,eg,ep,ev,re,r,rp)
