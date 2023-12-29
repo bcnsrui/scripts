@@ -57,7 +57,7 @@ function s.lcheck(g,lc)
 end
 s.curgroup=nil
 function s.extracon(c,e,tp,sg,mg,lc,og,chk)
-	return not s.curgroup
+	return not s.curgroup or #(sg&s.curgroup)<7
 end
 function s.extafilter(c)
 	return c:IsSetCard(0xe78) and not c:IsCode(112604240)
