@@ -28,6 +28,9 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SelectTarget(tp,s.filter1,tp,LOCATION_MZONE,0,1,1,nil,e,tp)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
+function s.matfilter(c)
+	return c:IsFaceup() and not c:IsType(TYPE_TOKEN)
+end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	local pg=aux.GetMustBeMaterialGroup(tp,Group.FromCards(tc),tp,nil,nil,REASON_XYZ)
@@ -40,5 +43,12 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Overlay(sc,tc)
 		Duel.SpecialSummon(sc,SUMMON_TYPE_XYZ,tp,tp,false,false,POS_FACEUP)
 		sc:CompleteProcedure()
+		local hg=Duel.GetMatchingGroup(s.matfilter,tp,0,LOCATION_MZONE,nil,e,tp)
+		if #hg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+			local tg=hg:Select(tp,1,1,nil):GetFirst()
+			if not tg then return end
+			Duel.BreakEffect()
+			Duel.Overlay(sc,tg)
+		end
 	end
 end
