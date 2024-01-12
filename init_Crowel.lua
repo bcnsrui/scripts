@@ -1,9 +1,11 @@
 --constants
-EFFECT_LINK_MAT_RESTRICTION=73941492+TYPE_LINK
-EFFECT_CUSTOM_MAT_RESTRICTION=73941492+TYPE_SPSUMMON
+EFFECT_LINK_MAT_RESTRICTION     =73941492+TYPE_LINK     --141050356 =0x86841F4
+EFFECT_CUSTOM_MAT_RESTRICTION   =73941492+TYPE_SPSUMMON --107495924 =0x66841F4
 EFFECT_LEVEL_RANK_R             =EFFECT_FORBIDDEN+EFFECT_LEVEL_RANK
+EFFECT_ACTIVATABLE_RANGE        =701
 
---new table functions for convenience
+
+--new functions for convenience
 --    유틸리티에서는 빠른 처리 및 제작자 본인의 편의를 위해 사용하고 있지만,
 --    개별 카드에서는 호환성 문제를 감안해서 사용하지 않을 예정입니다.
 --    마찬가지로, 다른 분들이 사용하실 경우에도, 유틸리티에서만 사용하시는 것을 추천합니다.
@@ -30,6 +32,12 @@ function Effect.IsCode(e,...)
 	return false
 end
 
+
+--Bug fix
+Duel.LoadScript("Crowel_config.lua")
+Duel.LoadScript("Crowel_hotfix.lua")
+
+
 --EFFECT_LINK_MAT_RESTRICTION
 local lap=Link.AddProcedure
 Link.AddProcedure=function(c,f,min,max,specialchk,desc)
@@ -38,11 +46,11 @@ Link.AddProcedure=function(c,f,min,max,specialchk,desc)
 		local gc=g:GetFirst()
 		while gc do
 			if gc:IsHasEffect(EFFECT_LINK_MAT_RESTRICTION) then
-				local eff={gc:GetCardEffect(EFFECT_LINK_MAT_RESTRICTION)}
-				for _,e in ipairs(eff) do
-					local fValue=e:GetValue()
+				local effs={gc:GetCardEffect(EFFECT_LINK_MAT_RESTRICTION)}
+				for _,eff in ipairs(effs) do
+					local fValue=eff:GetValue()
 					local fFilter=function(tc,te) return not fValue(te,tc) end
-					if g:IsExists(fFilter,1,gc,e) then return false end
+					if g:IsExists(fFilter,1,gc,eff) then return false end
 				end
 			end
 			gc=g:GetNext()
@@ -56,7 +64,13 @@ Link.AddProcedure=function(c,f,min,max,specialchk,desc)
 	end
 end
 
---Card.Rankmonster
+
+--EFFECT_CUSTOM_MAT_RESTRICTION
+--차후 작업
+
+
+--EFFECT_LEVEL_RANK_R
+--Replace Level with Rank
 Card.HasDataLevel = Card.HasLevel
 Card.HasLevel = function(c)
 	if c:IsMonster() then
@@ -231,3 +245,10 @@ function Auxiliary.EnableExtraFusion(f)
 	table.insert(ExtraFusion,f)
 	return true
 end
+
+
+--EFFECT_ST_ACT_IN_LOCATION
+--Make Spell/Trap activatable from other than hand/field
+--차후 작업
+
+
