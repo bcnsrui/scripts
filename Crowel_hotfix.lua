@@ -13,9 +13,16 @@ end
 local current_effect=nil
 local current_te_or_tc=nil
 local nexttg_cleanup_table={}
-local nexttg_cleanup=function(oldtg,newtg)
-	for _,f in pairs(nexttg_cleanup_table) do
-		f(oldtg,newtg)
+local nexttg_cleanup=function(e,v)
+	if not e then return end
+	local te_or_tc=e
+	if v and not e:IsHasType(EFFECT_TYPE_ACTIONS)
+		and (type(v)=="Effect" or type(v)=="Card") then te_or_tc=v end
+	if current_te_or_tc~=te_or_tc then
+		for _,f in pairs(nexttg_cleanup_table) do
+			f(e,v)
+		end
+		current_te_or_tc=te_or_tc
 	end
 end
 local EnableCurrentEffectCheck=function()
@@ -28,16 +35,14 @@ local EnableCurrentEffectCheck=function()
 				for pos,f_or_v in ipairs(args) do
 					if type(f_or_v)=="function" then
 						local f2=function(e2,v2,...)
-							current_effect=e2
-							local te_or_tc=v2
-							if e2:IsHasType(EFFECT_TYPE_ACTIONS) then te_or_tc = e2 end
-							if current_te_or_tc~=te_or_tc then
-								nexttg_cleanup(current_te_or_tc,te_or_tc)
-								current_te_or_tc=te_or_tc
+							if e2 and type(e2)=="Effect" then
+								current_effect=e2
+								nexttg_cleanup(e2,v2 or nil)
+							else
+								current_effect=e
 							end
-							local values={f_or_v(e2,v2,...)}
+							local values={f_or_v(e2 or nil,v2 or nil,...)}
 							current_effect=nil
-							
 							return table.unpack(values)
 						end
 						args2[pos]=f2
@@ -61,7 +66,7 @@ local lpcost={
 	[0]={},
 	[1]={}
 }
-table.insert(nexttg_cleanup_table,function(_,_)
+table.insert(nexttg_cleanup_table,function(e,_)
 	lpcost[0]={}
 	lpcost[1]={}
 end)
