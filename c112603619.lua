@@ -4,6 +4,7 @@ local cm=_G["c"..m]
 function cm.initial_effect(c)
 	--xyz summon
 	Xyz.AddProcedure(c,nil,3,2)
+	Xyz.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsAttribute,ATTRIBUTE_DARK),3,2)
 	c:EnableReviveLimit()
 	--lv change
 	local e0=Effect.CreateEffect(c)
