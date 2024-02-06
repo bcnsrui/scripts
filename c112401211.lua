@@ -68,6 +68,7 @@ function cm.equipop(c,e,tp,tc)
 	e3:SetTarget(aux.TargetBoolFunction(Card.IsType,TYPE_EQUIP))
 	e3:SetCode(EFFECT_ADD_SETCODE)
 	e3:SetValue(0xee5)
+	e3:SetReset(RESET_EVENT|RESETS_STANDARD)
 	tc:RegisterEffect(e3)
 end
 function cm.atkfilter(c)

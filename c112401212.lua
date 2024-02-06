@@ -119,6 +119,7 @@ function cm.eqop(e,tp,eg,ep,ev,re,r,rp)
 		e2:SetTarget(aux.TargetBoolFunction(Card.IsType,TYPE_EQUIP))
 		e2:SetCode(EFFECT_ADD_SETCODE)
 		e2:SetValue(0xee5)
+		e2:SetReset(RESET_EVENT|RESETS_STANDARD)
 		tc:RegisterEffect(e2)
 	end
 end
