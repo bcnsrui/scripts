@@ -9,12 +9,6 @@ function s.initial_effect(c)
 	c:EnableReviveLimit()
 	c:Rankmonster()
 	Fusion.AddProcMix(c,true,true,14831401,aux.FilterBoolFunctionEx(Card.IsSetCard,0xb83))
-	local e0=Effect.CreateEffect(c)
-	e0:SetType(EFFECT_TYPE_SINGLE)
-	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-	e0:SetCode(EFFECT_SPSUMMON_CONDITION)
-	e0:SetValue(s.splimit)
-	c:RegisterEffect(e0)
 	--destroy
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
@@ -49,13 +43,10 @@ function s.initial_effect(c)
 	e3:SetOperation(s.setop)
 	c:RegisterEffect(e3)
 end
-function s.splimit(e,se,sp,st)
-	return (st&SUMMON_TYPE_FUSION)==SUMMON_TYPE_FUSION and se:GetHandler():IsSetCard(0xb83)
-end
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
 	if not re then return false end
 	local rc=re:GetHandler()
-	return rc:IsSetCard(0xb83) and e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
+	return (rc:IsSetCard(0xb83) or rc:IsCode(14831401)) and e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
 end
 function s.tgfilter(c)
 	return c:IsAbleToGrave()

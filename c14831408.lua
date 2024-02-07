@@ -76,7 +76,7 @@ function s.fcheck(tp,sg,fc)
 	return sg:FilterCount(Card.IsControler,nil,1-tp)<=1
 end
 function s.additional_filter(c,e)
-	return c:IsAbleToGrave() and (c:IsSpellTrap() or c:IsLocation(LOCATION_EXTRA))
+	return c:IsAbleToGrave() and c:IsSpellTrap()
 		and (not e:IsHasType(EFFECT_TYPE_ACTIVATE) or e:GetHandler()~=c)
 end
 function s.extratg(e,tp,eg,ep,ev,re,r,rp,chk)

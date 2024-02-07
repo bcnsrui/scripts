@@ -14,18 +14,33 @@ function s.initial_effect(c)
 	local e2=e1:Clone()
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e2)
-	--spsuccess
+	--fusion summon
+	local params = {aux.FilterBoolFunction(Card.IsRankAbove,1),nil,s.fextra,nil,Fusion.ForcedHandler}
 	local e3=Effect.CreateEffect(c)
-	e3:SetCategory(CATEGORY_DRAW)
-	e3:SetType(EFFECT_TYPE_IGNITION)
-	e3:SetRange(LOCATION_GRAVE)
-	e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e3:SetDescription(aux.Stringid(id,0))
+	e3:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
+	e3:SetType(EFFECT_TYPE_QUICK_O)
 	e3:SetCode(EVENT_FREE_CHAIN)
+	e3:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_MAIN_END)
+	e3:SetRange(LOCATION_HAND+LOCATION_MZONE)
 	e3:SetCountLimit(1,{id,2})
-	e3:SetCost(c14831401.spcost)
-	e3:SetTarget(c14831401.sptg)
-	e3:SetOperation(c14831401.spop)
+	e3:SetCondition(s.spcon)
+	e3:SetTarget(Fusion.SummonEffTG(table.unpack(params)))
+	e3:SetOperation(Fusion.SummonEffOP(table.unpack(params)))
 	c:RegisterEffect(e3)
+	aux.GlobalCheck(s,function()
+		local ge1=Effect.CreateEffect(c)
+		ge1:SetType(EFFECT_TYPE_SINGLE)
+		ge1:SetCode(EFFECT_EXTRA_FUSION_MATERIAL)
+		ge1:SetValue(aux.FALSE)
+		local ge2=Effect.CreateEffect(c)
+		ge2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_GRANT)
+		ge2:SetTarget(aux.TargetBoolFunction(Card.IsSpellTrap))
+		ge2:SetTargetRange(LOCATION_ALL,LOCATION_ALL)
+		ge2:SetLabelObject(ge1)
+		Duel.RegisterEffect(ge2,0)
+	end)
+	
 end
 s.listed_names={id,CARD_Yunomi}
 function c14831401.filter(c)
@@ -43,24 +58,17 @@ function c14831401.shop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ConfirmCards(1-tp,g)
 	end
 end
-function c14831401.sfilter(c)
-	return c:IsType(TYPE_FUSION) and c:IsAbleToRemoveAsCost()
+function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetTurnPlayer()==1-tp and Duel.IsMainPhase()
 end
-function c14831401.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost()
-		and Duel.IsExistingMatchingCard(c14831401.sfilter,tp,LOCATION_GRAVE,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,c14831401.sfilter,tp,LOCATION_GRAVE,0,1,1,nil)
-	g:AddCard(e:GetHandler())
-	Duel.Remove(g,POS_FACEUP,REASON_COST)
+--Fusion Summon
+function s.fextra(e,tp,mg)
+	return Duel.GetMatchingGroup(s.additional_filter,tp,LOCATION_ONFIELD+LOCATION_HAND,0,nil)
 end
-function c14831401.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsPlayerCanDraw(tp,1) end
-	Duel.SetTargetPlayer(tp)
-	Duel.SetTargetParam(1)
-	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
+function s.additional_filter(c)
+	return c:IsAbleToGrave() and c:IsSpellTrap()
 end
-function c14831401.spop(e,tp,eg,ep,ev,re,r,rp)
-	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
-	Duel.Draw(p,d,REASON_EFFECT)
+function s.extratg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,0,tp,LOCATION_ONFIELD+LOCATION_HAND)
 end
