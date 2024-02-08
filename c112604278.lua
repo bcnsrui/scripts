@@ -35,10 +35,12 @@ function s.initial_effect(c)
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_EQUIP)
-	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetType(EFFECT_TYPE_QUICK_O)
+	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetRange(LOCATION_GRAVE)
-	e2:SetCountLimit(1,{id,1},EFFECT_COUNT_CODE_OATH)
+	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_END_PHASE)
+	e2:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
 	e2:SetTarget(s.eqtg)
 	e2:SetOperation(s.eqop)
 	c:RegisterEffect(e2)
@@ -46,7 +48,7 @@ end
 function s.matfilter(c,scard,sumtype,tp)
 	return (not c:IsSummonCode(lc,sumtype,tp,id)
 		and c:IsSetCard(0xe75,scard,sumtype,tp))
-		or c:IsType(TYPE_SPELL+TYPE_TRAP,scard,sumtype,tp)
+		or (c:IsSetCard(0xe78,scard,sumtype,tp) and c:IsType(TYPE_SPELL+TYPE_TRAP,scard,sumtype,tp))
 end
 s.curgroup=nil
 function s.extracon(c,e,tp,sg,mg,lc,og,chk)
@@ -123,10 +125,10 @@ function s.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local g=Duel.GetMatchingGroup(aux.TRUE,tp,0,LOCATION_ONFIELD,nil)
 	if chkc then return chkc~=c and chkc:IsLocation(LOCATION_MZONE) and s.eqfilter(chkc) end
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0
-		and Duel.IsExistingTarget(s.eqfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,c)
+		and Duel.IsExistingTarget(s.eqfilter,tp,LOCATION_MZONE,0,1,c)
 		and #g>0 end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
-	Duel.SelectTarget(tp,s.eqfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,c)
+	Duel.SelectTarget(tp,s.eqfilter,tp,LOCATION_MZONE,0,1,1,c)
 	Duel.SetOperationInfo(0,CATEGORY_EQUIP,c,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,c,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
@@ -140,13 +142,6 @@ function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 		return
 	end
 	Duel.Equip(tp,c,tc)
-	--Equip limit
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_EQUIP_LIMIT)
-	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-	e1:SetValue(function(_,c) return c:IsSetCard(0xe70) or c:IsSetCard(0xe78) end)
-	c:RegisterEffect(e1)
 	local g=Duel.GetMatchingGroup(aux.TRUE,tp,0,LOCATION_ONFIELD,nil)
 	if #g>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)

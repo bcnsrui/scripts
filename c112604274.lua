@@ -97,7 +97,7 @@ end
 function cm.rmop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then
-		Duel.Destroy(e:GetHandler(),REASON_EFFECT)
+		Duel.Destroy(tc,REASON_EFFECT)
 	end
 end
 
