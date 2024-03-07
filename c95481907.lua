@@ -49,7 +49,7 @@ function c95481907.rop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function c95481907.lcheck(g)
-	return g:IsExists(Card.IsLinkSetCard,1,nil,0xd49)
+	return g:IsExists(Card.IsSetCard,1,nil,0xd49)
 end
 
 function c95481907.cptg(e,tp,eg,ep,ev,re,r,rp,chk)

@@ -49,7 +49,7 @@ end
 function c95481905.matfilter(lc)
 	return
 		function(c)
-			return (c:IsLinkSetCard(0xd49) or c:GetOwner()~=lc:GetControler()) and not c:IsLinkType(TYPE_LINK)
+			return (c:IsSetCard(0xd49) or c:GetOwner()~=lc:GetControler()) and not c:IsLinkType(TYPE_LINK)
 		end
 end
 function c95481905.cpcon(e,tp,eg,ep,ev,re,r,rp)

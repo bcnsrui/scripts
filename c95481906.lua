@@ -46,7 +46,7 @@ function c95481906.rop(e,tp,eg,ep,ev,re,r,rp)
 	return c:RemoveCounter(tp,0x1949,min,max,REASON_COST)
 end
 function c95481906.lcheck(g,lc)
-	return g:IsExists(Card.IsLinkSetCard,1,nil,0xd49)
+	return g:IsExists(Card.IsSetCard,1,nil,0xd49)
 end
 
 function c95481906.cptg(e,tp,eg,ep,ev,re,r,rp,chk)
