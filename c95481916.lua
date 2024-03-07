@@ -49,7 +49,7 @@ function c95481916.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP_DEFENSE)
 end
 function c95481916.spfilter(c,e,tp)
-	return c:IsCanBeSpecialSummoned(e,0,tp,false,true) and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0 and c:CheckUniqueOnField(tp,LOCATION_MZONE)
+	return c:IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
 end
 function c95481916.filter2(c,e,tp)
 	return c:IsFacedown() or c95481916.spfilter(c,e,tp)
