@@ -1,7 +1,7 @@
 --인챈트릭스 다인
 function c95481915.initial_effect(c)
 	--link summon
-	aux.AddLinkProcedure(c,nil,2,2,c95481915.lcheck)
+	Link.AddProcedure(c,nil,2,2,c95481915.lcheck)
 	c:EnableReviveLimit()
 	--copy effect
 	local e1=Effect.CreateEffect(c)

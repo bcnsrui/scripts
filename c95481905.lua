@@ -2,7 +2,7 @@
 function c95481905.initial_effect(c)
 	c:SetSPSummonOnce(95481905)
 	--link summon
-	aux.AddLinkProcedure(c,c95481905.matfilter(c),1,1)
+	Link.AddProcedure(c,c95481905.matfilter(c),1,1)
 	c:EnableReviveLimit()
 	--spsummon
 	local e1=Effect.CreateEffect(c)

@@ -1,7 +1,7 @@
 --인챈트릭스 브리싱가멘
 function c95481917.initial_effect(c)
 	--link summon
-	aux.AddLinkProcedure(c,nil,2,99,c95481917.lcheck)
+	Link.AddProcedure(c,nil,2,99,c95481917.lcheck)
 	c:EnableReviveLimit()
 	--spsummon
 	local e1=Effect.CreateEffect(c)

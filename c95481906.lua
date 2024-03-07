@@ -1,7 +1,7 @@
 --인챈트릭스 후긴
 function c95481906.initial_effect(c)
 	--link summon
-	aux.AddLinkProcedure(c,nil,2,2,c95481906.lcheck)
+	Link.AddProcedure(c,nil,2,2,c95481906.lcheck)
 	c:EnableReviveLimit()
 	--spsummon
 	local e1=Effect.CreateEffect(c)

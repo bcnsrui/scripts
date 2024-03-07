@@ -1,7 +1,7 @@
 --인챈트릭스 프레키아
 function c95481907.initial_effect(c)
 	--link summon
-	aux.AddLinkProcedure(c,nil,2,99,c95481907.lcheck)
+	Link.AddProcedure(c,nil,2,99,c95481907.lcheck)
 	c:EnableReviveLimit()
 	--spsummon
 	local e1=Effect.CreateEffect(c)
