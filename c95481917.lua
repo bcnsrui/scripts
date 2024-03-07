@@ -37,7 +37,7 @@ function c95481917.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function c95481917.matfilter(c)
-	return c:IsSetCard(0xd49) and c:IsLinkType(TYPE_LINK)
+	return c:IsSetCard(0xd49) and c:IsLinkMonster()
 end
 function c95481917.lcheck(g)
 	return g:IsExists(c95481917.matfilter,1,nil)
