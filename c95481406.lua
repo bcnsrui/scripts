@@ -56,12 +56,15 @@ function s.tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	local g=Duel.SelectTarget(tp,s.tgfilter,tp,LOCATION_REMOVED,0,3,3,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,g,3,0,0)
+	Duel.SetTargetPlayer(tp)
+	Duel.SetTargetParam(2)
 	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,2)
 end
 function s.op(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetTargetCards(e)
+	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
 	if #g>0 then
 		Duel.SendtoGrave(g,REASON_EFFECT+REASON_RETURN)
-		Duel.IsPlayerCanDraw(tp,2)
+		Duel.Draw(p,d,REASON_EFFECT)
 	end
 end
