@@ -4,6 +4,7 @@ local cm=_G["c"..m]
 function cm.initial_effect(c)
 	--special summon
 	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(m,1))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetCode(EVENT_FREE_CHAIN)
@@ -16,6 +17,7 @@ function cm.initial_effect(c)
 	c:RegisterEffect(e1)
 	--search
 	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(m,2))
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_TO_HAND)
 	e2:SetCategory(CATEGORY_TOHAND)

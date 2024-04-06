@@ -5,6 +5,7 @@ function cm.initial_effect(c)
 	kaos.Sinsp(c)
 	--search
 	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(m,1))
 	e2:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_FREE_CHAIN)
