@@ -33,7 +33,7 @@ function cm.initial_effect(c)
 	e3:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e3:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_CARD_TARGET)
 	e3:SetCountLimit(1,{m,1})
-	e3:SetCondition(kaos.sincos)
+	e3:SetCondition(cm.pencon)
 	e3:SetTarget(cm.thtg)
 	e3:SetOperation(cm.thop)
 	c:RegisterEffect(e3)
@@ -72,6 +72,10 @@ end
 --search
 function cm.thfilter(c)
 	return c:IsSetCard(0xe87) and c:IsAbleToHand()
+end
+function cm.pencon(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	return c:IsPreviousLocation(LOCATION_MZONE) and kaos.sincos
 end
 function cm.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(cm.thfilter,tp,LOCATION_DECK,0,1,nil) end

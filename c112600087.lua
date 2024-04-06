@@ -35,7 +35,7 @@ function cm.initial_effect(c)
 	e2:SetCategory(CATEGORY_TOHAND)
 	e2:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_CARD_TARGET)
 	e2:SetCountLimit(1,{m,1})
-	e2:SetCondition(kaos.sincos)
+	e2:SetCondition(cm.pencon)
 	e2:SetTarget(cm.thtg)
 	e2:SetOperation(cm.thop)
 	c:RegisterEffect(e2)
@@ -61,6 +61,10 @@ end
 --search
 function cm.thfilter(c)
 	return c:IsSetCard(0xe87) and c:IsAbleToHand()
+end
+function cm.pencon(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	return c:IsPreviousLocation(LOCATION_MZONE) and kaos.sincos
 end
 function cm.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then
