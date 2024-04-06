@@ -2,32 +2,26 @@
 local m=112600109
 local cm=_G["c"..m]
 function cm.initial_effect(c)
-	--spsummon
-	kaos.Sinsp(c)
+	--act in hand
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_SINGLE)
+	e0:SetCode(EFFECT_TRAP_ACT_IN_HAND)
+	c:RegisterEffect(e0)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_CHAINING)
+	e1:SetCountLimit(1,m,EFFECT_COUNT_CODE_OATH)
 	e1:SetCondition(cm.condition)
 	e1:SetTarget(cm.target1)
 	e1:SetOperation(cm.activate)
 	c:RegisterEffect(e1)
-	--activate Spell
-	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_QUICK_O)
-	e2:SetRange(LOCATION_GRAVE)
-	e2:SetCode(EVENT_FREE_CHAIN)
-	e2:SetCondition(cm.condition2)
-	e2:SetCost(aux.bfgcost)
-	e2:SetTarget(cm.target2)
-	e2:SetOperation(cm.activate2)
-	c:RegisterEffect(e2)
 end
 
 --Activate
 function cm.cfilter(c)
-	return c:IsFaceup() and c:IsSetCard(0xe87) or c:IsSetCard(0xe86) or c:IsSetCard(0xe85)
+	return c:IsFaceup() and (c:IsSetCard(0xe85) or c:IsSetCard(0xe86) or c:IsSetCard(0xe87))
 end
 function cm.condition(e,tp,eg,ep,ev,re,r,rp)
 	if not Duel.IsExistingMatchingCard(cm.cfilter,tp,LOCATION_MZONE,0,1,nil) then return false end

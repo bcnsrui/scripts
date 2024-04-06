@@ -2,6 +2,11 @@
 local m=112600107
 local cm=_G["c"..m]
 function cm.initial_effect(c)
+	--act in hand
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_SINGLE)
+	e0:SetCode(EFFECT_TRAP_ACT_IN_HAND)
+	c:RegisterEffect(e0)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(m,0))
@@ -14,18 +19,6 @@ function cm.initial_effect(c)
 	e1:SetTarget(cm.target)
 	e1:SetOperation(cm.activate)
 	c:RegisterEffect(e1)
-	--summon
-	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(m,1))
-	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e3:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP)
-	e3:SetCountLimit(1,m+1,EFFECT_COUNT_CODE_DUEL)
-	e3:SetCode(EVENT_DESTROYED)
-	e3:SetCondition(cm.condition)
-	e3:SetTarget(cm.target2)
-	e3:SetOperation(cm.operation)
-	c:RegisterEffect(e3)
 end
 
 --Activate

@@ -4,11 +4,15 @@ local cm=_G["c"..m]
 function cm.initial_effect(c)
 	--special summon
 	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_SPSUMMON_PROC)
-	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e1:SetType(EFFECT_TYPE_QUICK_O)
+	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetHintTiming(0,TIMING_MAIN_END|TIMINGS_CHECK_MONSTER)
+	e1:SetCountLimit(1,m)
 	e1:SetRange(LOCATION_HAND)
-	e1:SetCondition(kaos.sincon)
+	e1:SetCondition(cm.con)
+	e1:SetTarget(cm.sptg)
+	e1:SetOperation(cm.spop)
 	c:RegisterEffect(e1)
 	--destroy
 	local e2=Effect.CreateEffect(c)
@@ -26,13 +30,30 @@ function cm.initial_effect(c)
 	e3:SetCode(EVENT_TO_HAND)
 	e3:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e3:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_CARD_TARGET)
-	e3:SetCountLimit(1,m)
+	e3:SetCountLimit(1,{m,1})
 	e3:SetCondition(kaos.sincos)
 	e3:SetTarget(cm.thtg)
 	e3:SetOperation(cm.thop)
 	c:RegisterEffect(e3)
 end
-
+function cm.con(e,tp,eg,ep,ev,re,r,rp)
+	return not Duel.IsExistingMatchingCard(cm.nonwindfilter,tp,LOCATION_MZONE,0,1,nil)
+end
+function cm.nonwindfilter(c)
+	return c:IsFacedown() or c:IsAttributeExcept(ATTRIBUTE_WIND)
+end
+function cm.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,tp,0)
+end
+function cm.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) then
+		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+	end
+end
 --special summon
 function cm.destg1(e,tp,eg,ep,ev,re,r,rp,chk)
 	local tc=e:GetHandler():GetBattleTarget()

@@ -11,17 +11,20 @@ function cm.initial_effect(c)
 	e0:SetCountLimit(1)
 	e0:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e0:SetRange(LOCATION_MZONE)
-	e0:SetCost(cm.descost)
 	e0:SetTarget(cm.destg)
 	e0:SetOperation(cm.desop)
 	c:RegisterEffect(e0)
 	--special summon
 	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_SPSUMMON_PROC)
-	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e1:SetType(EFFECT_TYPE_QUICK_O)
+	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetHintTiming(0,TIMING_MAIN_END|TIMINGS_CHECK_MONSTER)
+	e1:SetCountLimit(1,m)
 	e1:SetRange(LOCATION_GRAVE)
-	e1:SetCondition(kaos.sincon)
+	e1:SetCondition(cm.con)
+	e1:SetTarget(cm.sptg)
+	e1:SetOperation(cm.spop)
 	c:RegisterEffect(e1)
 	--search
 	local e2=Effect.CreateEffect(c)
@@ -29,13 +32,30 @@ function cm.initial_effect(c)
 	e2:SetCode(EVENT_TO_HAND)
 	e2:SetCategory(CATEGORY_TOHAND)
 	e2:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_CARD_TARGET)
-	e2:SetCountLimit(1,m)
+	e2:SetCountLimit(1,{m,1})
 	e2:SetCondition(kaos.sincos)
 	e2:SetTarget(cm.thtg)
 	e2:SetOperation(cm.thop)
 	c:RegisterEffect(e2)
 end
-
+function cm.con(e,tp,eg,ep,ev,re,r,rp)
+	return not Duel.IsExistingMatchingCard(cm.nonwindfilter,tp,LOCATION_MZONE,0,1,nil)
+end
+function cm.nonwindfilter(c)
+	return c:IsFacedown() or c:IsAttributeExcept(ATTRIBUTE_WIND)
+end
+function cm.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,tp,0)
+end
+function cm.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) then
+		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+	end
+end
 --search
 function cm.thfilter(c)
 	return c:IsSetCard(0xe87) and c:IsAbleToHand()
