@@ -40,7 +40,7 @@ function cm.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function cm.con(e,tp,eg,ep,ev,re,r,rp)
-	return not Duel.IsExistingMatchingCard(cm.nonwindfilter,tp,LOCATION_MZONE,0,1,nil)
+	return Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)==0
 end
 function cm.nonwindfilter(c)
 	return c:IsFacedown() or c:IsAttributeExcept(ATTRIBUTE_WIND)
