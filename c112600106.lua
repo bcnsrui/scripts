@@ -33,7 +33,7 @@ function cm.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
 function cm.activate(e,tp,eg,ep,ev,re,r,rp)
-	local ct=Duel.GetMatchingGroupCount(cm.cfilter2,tp,LOCATION_MZONE,0,nil)
+	local ct=Duel.GetMatchingGroupCount(cm.cfilter2,tp,LOCATION_ONFIELD,0,nil)
 	if ct==0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectMatchingCard(tp,aux.TRUE,tp,0,LOCATION_ONFIELD,1,ct,nil)
