@@ -40,7 +40,7 @@ function cm.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function cm.con(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)==0
+	return Duel.IsMainPhase() and Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)==0
 end
 function cm.nonwindfilter(c)
 	return c:IsFacedown() or c:IsAttributeExcept(ATTRIBUTE_WIND)
