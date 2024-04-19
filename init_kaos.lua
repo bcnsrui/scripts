@@ -292,7 +292,7 @@ end
 --자체 특소
 function kaos.sincon(e,c)
 	if c==nil then return true end
-	return Duel.GetFieldGroupCount(c:GetControler(),LOCATION_MZONE,0)==0
+	return Duel.IsMainPhase() and Duel.GetFieldGroupCount(c:GetControler(),LOCATION_MZONE,0)==0
 		and Duel.GetLocationCount(c:GetControler(),LOCATION_MZONE)>0
 end
 
@@ -317,8 +317,9 @@ function kaos.Sinreturn(c)
 	e1:SetRange(LOCATION_HAND)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e1:SetHintTiming(0,TIMING_END_PHASE)
+	e1:SetHintTiming(0,TIMING_MAIN_END|TIMINGS_CHECK_MONSTER|TIMING_END_PHASE)
 	e1:SetCountLimit(1,c:GetOriginalCode())
+	e1:SetCondition(function() return Duel.IsMainPhase() end)
 	e1:SetCost(kaos.coscost)
 	e1:SetTarget(kaos.costg)
 	e1:SetOperation(kaos.cosop)
@@ -371,6 +372,7 @@ function kaos.Sinsp(c)
 	e0:SetType(EFFECT_TYPE_QUICK_O)
 	e0:SetRange(LOCATION_HAND)
 	e0:SetCode(EVENT_FREE_CHAIN)
+	e0:SetCondition(function() return Duel.IsMainPhase() end)
 	e0:SetCost(kaos.tancost)
 	e0:SetTarget(kaos.tantg)
 	e0:SetOperation(kaos.tanop)
