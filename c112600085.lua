@@ -18,7 +18,7 @@ function cm.initial_effect(c)
 	--destroy
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(m,0))
-	e2:SetCategory(CATEGORY_DESTROY)
+	e2:SetCategory(CATEGORY_TOHAND)
 	e2:SetCountLimit(1,{m,2})
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_BATTLE_START)
@@ -58,14 +58,17 @@ function cm.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 --special summon
 function cm.destg1(e,tp,eg,ep,ev,re,r,rp,chk)
-	local tc=e:GetHandler():GetBattleTarget()
-	if chk==0 then return tc and tc:IsFaceup() and tc:GetAttribute()~=ATTRIBUTE_WIND end
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,tc,1,0,0)
+	local c=e:GetHandler()
+	local tc=c:GetBattleTarget()
+	if chk==0 then return tc and tc:IsControler(1-tp) and tc:IsAbleToHand() end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,tc,1,0,0)
 end
 function cm.desop1(e,tp,eg,ep,ev,re,r,rp)
-	local tc=e:GetHandler():GetBattleTarget()
-	if tc:IsRelateToBattle() then
-		Duel.Destroy(tc,REASON_EFFECT)
+	local c=e:GetHandler()
+	local tc=Duel.GetAttacker()
+	if c==tc then tc=Duel.GetAttackTarget() end
+	if tc and tc:IsRelateToBattle() then
+		Duel.SendtoHand(tc,nil,REASON_EFFECT)
 	end
 end
 
