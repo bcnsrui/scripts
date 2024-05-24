@@ -68,14 +68,17 @@ end
 
 --파괴회피
 function c81265050.cfilter(c,tp)
-	return c:IsFaceup() and c:IsSetCard(0xc91) and c:IsType(TYPE_MONSTER)
-	and c:IsControler(tp) and c:IsReason(REASON_BATTLE+REASON_EFFECT) and not c:IsReason(REASON_REPLACE)
+	return c:IsFaceup() and c:IsSetCard(0xc91) and c:IsLocation(LOCATION_MZONE)
+		and c:IsControler(tp) and c:IsReason(REASON_EFFECT+REASON_BATTLE) and not c:IsReason(REASON_REPLACE)
 end
 function c81265050.tg3(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then
-		return e:GetHandler():IsAbleToRemove() and eg:IsExists(c81265050.cfilter,1,nil,tp)
-	end
+	if chk==0 then 
+		local tc=eg:GetFirst()
+		return eg:GetCount()==1 and e:GetHandler():IsAbleToRemove() and eg:IsExists(c81265050.cfilter,1,nil,tp) end
 	return Duel.SelectEffectYesNo(tp,e:GetHandler(),96)
+end
+function c81265050.val(e,c)
+	return c81265050.cfilter(c,e:GetHandlerPlayer())
 end
 function c81265050.op3(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_EFFECT)
