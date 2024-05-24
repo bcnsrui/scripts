@@ -5,7 +5,7 @@ local cm=_G["c"..m]
 function cm.initial_effect(c)
 
 	c:EnableReviveLimit()
-	aux.AddXyzProcedure(c,aux.FilterBoolFunction(Card.IsRace,RACE_THUNDER),4,2,cm.xyzfil0,aux.Stringid(m,3),2,cm.xyzop)
+	Xyz.AddProcedure(c,aux.FilterBoolFunction(Card.IsRace,RACE_THUNDER),4,2,cm.xyzfil0,aux.Stringid(m,0),2,cm.xyzop)
 	
 	--필드클린
 	local e1=Effect.CreateEffect(c)
@@ -55,7 +55,7 @@ function cm.xyzfil0(c,tp,xyzc)
 	return c:IsFaceup() and c:IsSetCard(0xc91) and c:IsType(TYPE_ORDER,xyzc,SUMMON_TYPE_XYZ,tp)
 end
 function cm.xyzop(e,tp,chk)
-	if chk==0 then	
+	if chk==0 then  
 		return Duel.GetFlagEffect(tp,m)==0
 	end
 	Duel.RegisterFlagEffect(tp,m,RESET_PHASE+PHASE_END,0,1)

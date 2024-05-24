@@ -5,7 +5,7 @@ local cm=_G["c"..m]
 function cm.initial_effect(c)
 
 	c:EnableReviveLimit()
-	aux.AddXyzProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xc91),4,2,cm.mfilter0,aux.Stringid(m,0),99,cm.xyzop)
+	Xyz.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0xc91),4,2,cm.mfilter0,aux.Stringid(m,0),99,cm.xyzop)
 	
 	--덤핑
 	local e1=Effect.CreateEffect(c)
