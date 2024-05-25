@@ -52,7 +52,7 @@ end
 
 --소재
 function cm.xyzfil0(c,tp,xyzc)
-	return c:IsFaceup() and c:IsSetCard(0xc91) and c:IsType(TYPE_ORDER,xyzc,SUMMON_TYPE_XYZ,tp)
+	return c:IsFaceup() and c:IsSetCard(0xc91) and (c:IsCode(81265040) or c:IsCode(81265120))
 end
 function cm.xyzop(e,tp,chk)
 	if chk==0 then  
@@ -84,7 +84,7 @@ function cm.op1(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function cm.cfilter(c)
-	return c:IsType(TYPE_ORDER)
+	return (c:IsCode(81265040) or c:IsCode(81265120))
 end
 function cm.va2(e,c)
 	local g=c:GetMaterial()
@@ -98,9 +98,11 @@ end
 
 --내성
 function cm.cn3(e)
-	return e:GetHandler():GetOverlayGroup():IsExists(Card.IsType,1,nil,TYPE_ORDER)
+	return e:GetHandler():GetOverlayGroup():IsExists(cm.imfilter,1,nil)
 end
-
+function cm.imfilter(c)
+	return (c:IsCode(81265040) or c:IsCode(81265120))
+end
 --서치
 function cm.co4(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()

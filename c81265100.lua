@@ -35,7 +35,7 @@ end
 
 --엑시즈
 function cm.mfilter0(c)
-	return c:IsFaceup() and c:IsSetCard(0xc91) and c:IsType(TYPE_ORDER)
+	return c:IsFaceup() and c:IsSetCard(0xc91) and (c:IsCode(81265040) or c:IsCode(81265120))
 end
 function cm.xyzop(e,tp,chk)
 	if chk==0 then

@@ -25,19 +25,12 @@ function cm.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_NO_TURN_RESET)
 	e2:SetRange(0x04)
-	e2:SetCountLimit(1,EFFECT_COUNT_CODE_SINGLE)
+	e2:SetCountLimit(1)
 	e2:SetCondition(cm.cn2)
 	e2:SetCost(cm.co2)
 	e2:SetTarget(cm.tg2)
 	e2:SetOperation(cm.op2)
 	c:RegisterEffect(e2)
-	local e3=e2:Clone()
-	e3:SetDescription(aux.Stringid(m,1))
-	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e3:SetProperty(EFFECT_FLAG_NO_TURN_RESET)
-	e3:SetTarget(cm.tg3)
-	e3:SetOperation(cm.op3)
-	c:RegisterEffect(e3)
 	
 	--유발즉시 효과
 	local e4=Effect.CreateEffect(c)
@@ -45,7 +38,7 @@ function cm.initial_effect(c)
 	e4:SetType(EFFECT_TYPE_QUICK_O)
 	e4:SetCode(EVENT_FREE_CHAIN)
 	e4:SetRange(0x04)
-	e4:SetCountLimit(1,m)
+	e4:SetCountLimit(1,m+1)
 	e4:SetCondition(cm.cn4)
 	e4:SetCost(aux.bfgcost)
 	e4:SetTarget(cm.tg4)
@@ -111,17 +104,34 @@ function cm.co2(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 --드로우
 function cm.tg2(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
 	local ct=e:GetLabel()
-	if chk==0 then
-		return Duel.IsPlayerCanDraw(tp,ct)
+	local g1=Duel.GetMatchingGroup(cm.spfilter0,tp,0x02,0,nil,e,tp)
+	local b1= Duel.IsPlayerCanDraw(tp,ct) 
+	local b2= (#g1>=ct and Duel.GetLocationCount(tp,0x04)>=ct)
+	local op=Duel.SelectEffect(tp,
+		{b1,aux.Stringid(m,0)},
+		{b2,aux.Stringid(m,1)})
+	e:SetLabel(op)
+	e:SetLabel(ct)
+	if op==1 then
+		Duel.SetTargetPlayer(tp)
+		Duel.SetTargetParam(ct)
+		Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,ct)
 	end
-	Duel.SetTargetPlayer(tp)
-	Duel.SetTargetParam(ct)
-	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,ct)
 end
 function cm.op2(e,tp,eg,ep,ev,re,r,rp)
-	local p,d=Duel.GetChainInfo(0,CHAINIFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
-	Duel.Draw(p,d,REASON_EFFECT)
+	local ct=e:GetLabel()
+	local op=e:GetLabel()
+	if op==1 then
+		local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
+		Duel.Draw(p,d,REASON_EFFECT)
+	else
+		local g=Duel.SelectMatchingCard(tp,cm.spfilter0,tp,0x02,0,ct,ct,nil,e,tp)
+		if #g>0 then
+			Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+		end
+	end
 end
 --특수 소환
 function cm.tg3(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -143,33 +153,30 @@ end
 --특수 소환
 function cm.cn4(e,tp,eg,ep,ev,re,r,rp)
 	local ph=Duel.GetCurrentPhase() 
-	return Duel.GetTurnPlayer()==1-tp and  (ph==PHASE_MAIN1 or ph==PHASE_MAIN2)
-	and e:GetHandler():GetSequence()>4
+	return Duel.GetTurnPlayer()~=tp and (ph==PHASE_MAIN1 or ph==PHASE_MAIN2)
 end
 function cm.tfilter0(c,e,tp)
 	return c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 	and c:IsSetCard(0xc91) and c:IsType(TYPE_XYZ)
-	and Duel.IsExistingMatchingCard(cm.ordfilter,tp,0x40,0,1,nil,c)
+	and Duel.IsExistingMatchingCard(cm.ordfilter,tp,0x40,0,1,nil,e,tp)
 end
-function cm.ordfilter(c,mc)
-	return c:IsOrderSummonable(nil,mc) and c:IsSetCard(0xc91)
+function cm.ordfilter(c,e,tp)
+	return c:IsSetCard(0xc91) and not c:IsType(TYPE_XYZ) and not c:IsType(TYPE_LINK)
 end
 function cm.tfilter1(c,e,tp)
 	return c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-	and c:IsSetCard(0xc91) and c:IsType(TYPE_ORDER)
-	and Duel.IsExistingMatchingCard(cm.xyzfilter,tp,0x40,0,1,nil,e,tp,c)
+	and c:IsSetCard(0xc91) and not c:IsType(TYPE_XYZ) and not c:IsType(TYPE_LINK)
+	and Duel.IsExistingMatchingCard(cm.xyzfilter,tp,0x40,0,1,nil,e,tp)
 end
-function cm.xyzfilter(c,e,tp,mc)
-	return c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false) and c:IsSetCard(0xc91)
-	and mc:IsCanBeXyzMaterial(c) and Duel.GetLocationCount(tp,tp,mc,c)>0
+function cm.xyzfilter(c,e,tp)
+	return c:IsSetCard(0xc91) and c:IsType(TYPE_XYZ)
 end
 function cm.tg4(e,tp,eg,ep,ev,re,r,rp,chk)
 	local b1=Duel.IsExistingMatchingCard(cm.tfilter0,tp,0x40,0,1,nil,e,tp)
 	local b2=Duel.IsExistingMatchingCard(cm.tfilter1,tp,0x40,0,1,nil,e,tp)
 	if chk==0 then
 		return Duel.IsPlayerCanSpecialSummonCount(tp,2)
-		and Duel.GetLocationCount(tp,0x04)>-1
-		and (b1 or b2)
+		and Duel.GetLocationCount(tp,0x04)>0 and (b1 or b2)
 	end
 	local off=1
 	local ops={}
@@ -179,7 +186,7 @@ function cm.tg4(e,tp,eg,ep,ev,re,r,rp,chk)
 		opval[off-1]=1
 		off=off+1
 	end
-	if b1 then
+	if b2 then
 		ops[off]=aux.Stringid(m,4)
 		opval[off-1]=2
 		off=off+1
@@ -194,38 +201,36 @@ function cm.op4(e,tp,eg,ep,ev,re,r,rp)
 		return
 	end
 	if e:GetLabel()==1 then
-		t_filter,ex_filter,mat=cm.tfilter0,cm.ordfilter,EFFECT_MUST_BE_OMATERIAL
+		t_filter,ex_filter=cm.tfilter0,cm.ordfilter
 	else
-		t_filter,ex_filter,mat=cm.tfilter1,cm.xyzfilter,EFFECT_MUST_BE_XMATERIAL
+		t_filter,ex_filter=cm.tfilter1,cm.xyzfilter
 	end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,t_filter,tp,0x40,0,1,1,nil,e,tp)
 	local tc=g:GetFirst()
 	if not tc then return end
-	if not aux.MustMaterialCheck(tc,tp,mat) then return end
 	if not Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP) then
 		Duel.SpecialSummonComplete()
 		return
 	end
 	Duel.SpecialSummonComplete()
-	Duel.AdjustAll()
 	if not tc:IsLocation(0x04) then return end
-	local tg=Duel.GetMatchingGroup(ex_filter,tp,0x40,0,nil,tc)
+	local tg=Duel.GetMatchingGroup(ex_filter,tp,0x40,0,nil,e,tp)
 	if #tg>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local sg=tg:Select(tp,1,1,nil)
 		local sc=sg:GetFirst()
-		if sc:IsType(TYPE_ORDER) then
+		if sc:IsType(TYPE_XYZ) then
+			Duel.BreakEffect()
+			sc:SetMaterial(Group.FromCards(tc))
+			Duel.Overlay(sc,tc)
+			Duel.SpecialSummon(sc,SUMMON_TYPE_XYZ,tp,tp,false,false,POS_FACEUP)
+			sc:CompleteProcedure()
+		else
 			Duel.BreakEffect()
 			sc:SetMaterial(Group.FromCards(tc))
 			Duel.SendtoGrave(tc,REASON_EFFECT+REASON_MATERIAL+REASON_ORDER)
 			Duel.SpecialSummon(sc,SUMMON_TYPE_ORDER,tp,tp,false,false,POS_FACEUP)
-			sc:CompleteProcedure()
-		else
-			Duel.BreakEffect()
-			sc:SetMaterial(g)
-			Duel.Overlay(sc,g)
-			Duel.SpecialSummon(sc,SUMMON_TYPE_XYZ,tp,tp,false,false,POS_FACEUP)
 			sc:CompleteProcedure()
 		end
 	end
