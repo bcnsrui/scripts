@@ -112,17 +112,19 @@ function cm.tg2(e,tp,eg,ep,ev,re,r,rp,chk)
 	local op=Duel.SelectEffect(tp,
 		{b1,aux.Stringid(m,0)},
 		{b2,aux.Stringid(m,1)})
-	e:SetLabel(op)
-	e:SetLabel(ct)
+	local combinedValue = op*10 + ct 
+	e:SetLabel(combinedValue)
 	if op==1 then
 		Duel.SetTargetPlayer(tp)
 		Duel.SetTargetParam(ct)
 		Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,ct)
 	end
 end
+
 function cm.op2(e,tp,eg,ep,ev,re,r,rp)
-	local ct=e:GetLabel()
-	local op=e:GetLabel()
+	local combinedValue = e:GetLabel()
+	local op = math.floor(combinedValue / 10) 
+	local ct = combinedValue % 10 
 	if op==1 then
 		local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
 		Duel.Draw(p,d,REASON_EFFECT)
