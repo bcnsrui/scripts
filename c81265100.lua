@@ -42,6 +42,7 @@ function cm.xyzop(e,tp,chk)
 		return Duel.GetFlagEffect(tp,m)==0
 	end
 	Duel.RegisterFlagEffect(tp,m,RESET_PHASE+PHASE_END,EFFECT_FLAG_OATH,1)
+	return true
 end
 
 --덤핑
