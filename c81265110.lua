@@ -56,15 +56,16 @@ end
 function cm.op1(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if c:IsRelateToEffect(e) and tc:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)~=0 then
-		Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)
-	end
-	local g=Duel.GetMatchingGroup(cm.spfilter1,tp,0x01+0x02,0,nil,e,tp,tc:GetOriginalAttribute())
-	if #g>0 and Duel.GetLocationCount(tp,0x04)>0 and Duel.SelectYesNo(tp,aux.Stringid(m,0)) then
-		Duel.BreakEffect()
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local sg=Duel.SelectMatchingCard(tp,cm.spfilter1,tp,0x01+0x02,0,1,1,nil,e,tp,tc:GetOriginalAttribute())
-		Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
+	if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)~=0 then
+		if tc:IsRelateToEffect(e) and Duel.Remove(tc,POS_FACEUP,REASON_EFFECT) then 
+			local g=Duel.GetMatchingGroup(cm.spfilter1,tp,0x01+0x02,0,nil,e,tp,tc:GetOriginalAttribute())
+			if #g>0 and Duel.GetLocationCount(tp,0x04)>0 and Duel.SelectYesNo(tp,aux.Stringid(m,0)) then
+				Duel.BreakEffect()
+				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+				local sg=Duel.SelectMatchingCard(tp,cm.spfilter1,tp,0x01+0x02,0,1,1,nil,e,tp,tc:GetOriginalAttribute())
+				Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
+			end
+		end
 	end
 end
 
