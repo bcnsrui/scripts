@@ -39,35 +39,40 @@ function cm.initial_effect(c)
 	e4:SetCode(EVENT_FREE_CHAIN)
 	e4:SetRange(0x04)
 	e4:SetCountLimit(1,m+1)
+	e4:SetCost(cm.spcost)
 	e4:SetCondition(cm.cn4)
-	e4:SetCost(aux.bfgcost)
 	e4:SetTarget(cm.tg4)
 	e4:SetOperation(cm.op4)
 	c:RegisterEffect(e4)
-end
-function cm.spcon10(e,tp,eg,ep,ev,re,r,rp)
-	return not Duel.GetCustomActivityCount(m,tp,ACTIVITY_SPSUMMON)==0
+
+	Duel.AddCustomActivityCounter(m,ACTIVITY_SPSUMMON,cm.counterfilter)
 end
 function cm.counterfilter(c)
 	return not c:IsRace(RACE_THUNDER)
-end
-function cm.spcostop(e,tp,eg,ep,ev,re,r,rp)
-	--Cannot Special Summon
-	local e1=Effect.CreateEffect(e:GetHandler())
-	e1:SetDescription(aux.Stringid(id,1))
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_OATH+EFFECT_FLAG_CLIENT_HINT)
-	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
-	e1:SetTargetRange(1,0)
-	e1:SetTarget(cm.tg1)
-	e1:SetReset(RESET_PHASE|PHASE_END)
-	Duel.RegisterEffect(e1,tp)
 end
 
 function cm.mfilter0(c)
 	return not c:IsType(TYPE_LINK) and c:IsSetCard(0xc91)
 end
-
+function cm.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetCustomActivityCount(m,tp,ACTIVITY_SPSUMMON)==0 
+		and aux.bfgcost(e,tp,eg,ep,ev,re,r,rp,chk) end
+	
+	aux.bfgcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_OATH+EFFECT_FLAG_CLIENT_HINT)
+	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	e1:SetReset(RESET_PHASE+PHASE_END)
+	e1:SetTargetRange(1,0)
+	e1:SetLabelObject(e)
+	e1:SetTarget(cm.splimit)
+	Duel.RegisterEffect(e1,tp)
+end
+function cm.splimit(e,c,sump,sumtype,sumpos,targetp,se)
+	return not c:IsRace(RACE_THUNDER)
+end
 --특수 소환 제한
 function cm.tg1(e,c,sump,sumtype,sumpos,targetp,se)
 	return not c:IsRace(RACE_THUNDER)
@@ -85,22 +90,30 @@ function cm.spfilter0(c,e,tp)
 	return c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsSetCard(0xc91)
 end
 function cm.co2(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then
-		return Duel.IsExistingMatchingCard(cm.cfilter0,tp,0x10+0x20,0,1,nil)
-	end
-	local ct=1
+		if chk==0 then 
+				return (Duel.IsExistingMatchingCard(cm.cfilter0,tp,0x10+0x20,0,1,nil) and Duel.GetCustomActivityCount(m,tp,ACTIVITY_SPSUMMON)==0) 
+		end
+	--Cannot Special Summon non-WATER monsters
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetDescription(aux.Stringid(m,1))
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_OATH+EFFECT_FLAG_CLIENT_HINT)
+	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	e1:SetTargetRange(1,0)
+	e1:SetTarget(function(_,c) return c:IsRace(RACE_THUNDER) end)
+	e1:SetReset(RESET_PHASE|PHASE_END)
+	Duel.RegisterEffect(e1,tp)
+
+		local ct=1
 	local g=Duel.GetMatchingGroup(cm.cfilter0,tp,0x10+0x20,0,nil)
-	local g1=Duel.GetMatchingGroup(cm.spfilter0,tp,0x02,0,nil,e,tp)
-	if g:GetClassCount(Card.GetAttribute)>=2 then ct=ct+1 end
-	if ct==2 and not Duel.IsPlayerCanDraw(tp,2) 
-			 and Duel.IsPlayerAffectedByEffect(tp,59822133)
-			 and (#g1<=1 or Duel.GetLocationCount(tp,0x04)==1)  
-	then
-		ct=ct-1 
-	end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local sg=g:SelectSubGroup(tp,aux.dabcheck,false,1,ct)
-	e:SetLabel(Duel.SendtoDeck(sg,nil,2,REASON_COST))
+		local g1=Duel.GetMatchingGroup(cm.spfilter0,tp,0x02,0,nil,e,tp)
+		if g:GetClassCount(Card.GetAttribute)>=2 then ct=ct+1 end
+		if ct==2 and not Duel.IsPlayerCanDraw(tp,2) and Duel.IsPlayerAffectedByEffect(tp,59822133) and (#g1<=1 or Duel.GetLocationCount(tp,0x04)==1) then
+				ct=ct-1 
+		end
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
+		local sg=g:SelectSubGroup(tp,aux.dabcheck,false,1,ct)
+		e:SetLabel(Duel.SendtoDeck(sg,nil,2,REASON_COST))
 end
 --드로우
 function cm.tg2(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -135,22 +148,6 @@ function cm.op2(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 end
---특수 소환
-function cm.tg3(e,tp,eg,ep,ev,re,r,rp,chk)
-	local ct=e:GetLabel()
-	if chk==0 then
-		return Duel.GetLocationCount(tp,0x04)>=ct
-		and Duel.IsExistingMatchingCard(cm.spfilter0,tp,0x02,0,ct,nil,e,tp)
-	end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,ct,tp,0x02)
-end
-function cm.op3(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,cm.spfilter0,tp,0x02,0,ct,ct,nil,e,tp)
-	if #g>0 then
-		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
-	end
-end
 
 --특수 소환
 function cm.cn4(e,tp,eg,ep,ev,re,r,rp)
@@ -176,10 +173,10 @@ end
 function cm.tg4(e,tp,eg,ep,ev,re,r,rp,chk)
 	local b1=Duel.IsExistingMatchingCard(cm.tfilter0,tp,0x40,0,1,nil,e,tp)
 	local b2=Duel.IsExistingMatchingCard(cm.tfilter1,tp,0x40,0,1,nil,e,tp)
-	if chk==0 then
-		return Duel.IsPlayerCanSpecialSummonCount(tp,2)
-		and Duel.GetLocationCount(tp,0x04)>0 and (b1 or b2)
+	if chk==0 then 
+		 return Duel.IsPlayerCanSpecialSummonCount(tp,2) and Duel.GetLocationCount(tp,0x04)>0 and (b1 or b2)
 	end
+
 	local off=1
 	local ops={}
 	local opval={}
