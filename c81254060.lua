@@ -74,7 +74,7 @@ end
 
 --고유 효과
 function cm.cn2(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetFieldGroup(tp,0x0c,0)
+	local g=Duel.GetFieldGroup(tp,0x04,0)
 	if #g~=1 then
 		return false
 	end
