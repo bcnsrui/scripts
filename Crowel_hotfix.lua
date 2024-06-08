@@ -1,4 +1,4 @@
-local USE_HOTFIX = true --by default, use these fixes
+local USE_HOTFIX = false --by default, use these fixes
 if Crowel_Config and not Crowel_Config[CC_USE_HOTFIX] then
 	USE_HOTFIX = false
 end
