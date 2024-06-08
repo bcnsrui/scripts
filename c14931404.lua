@@ -1,79 +1,100 @@
---hana synchro
-function c14931404.initial_effect(c)
-	--synchro summon
-	Synchro.AddProcedure(c,nil,1,1,aux.FilterBoolFunctionEx(Card.IsSetCard,0xb93),1,99,c14931404.exmatfilter)
-	c:EnableReviveLimit()
-	--draw
+--하나레타마에 토쿠라 에이코
+local s,id=GetID()
+function s.initial_effect(c)
+	-- Special Summon this card
 	local e1=Effect.CreateEffect(c)
-	e1:SetCategory(CATEGORY_DRAW+CATEGORY_HANDES)
-	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e1:SetProperty(EFFECT_FLAG_DELAY)
-	e1:SetCondition(c14931404.drcon)
-	e1:SetTarget(c14931404.drtg)
-	e1:SetOperation(c14931404.drop)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_HANDES)
+	e1:SetType(EFFECT_TYPE_QUICK_O)
+	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetHintTiming(TIMINGS_CHECK_MONSTER+TIMING_MAIN_END,TIMINGS_CHECK_MONSTER+TIMING_MAIN_END)
+	e1:SetRange(LOCATION_HAND)
+	e1:SetCountLimit(1,id)
+	e1:SetCondition(s.spcon)
+	e1:SetTarget(s.sptg)
+	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
-	local e0=Effect.CreateEffect(c)
-	e0:SetType(EFFECT_TYPE_SINGLE)
-	e0:SetCode(EFFECT_MATERIAL_CHECK)
-	e0:SetValue(c14931404.valcheck)
-	e0:SetLabelObject(e1)
-	c:RegisterEffect(e0)
-	--special summon
 	local e2=Effect.CreateEffect(c)
-	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e2:SetType(EFFECT_TYPE_IGNITION)
-	e2:SetRange(LOCATION_MZONE)
-	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetCountLimit(1,14931404)
-	e2:SetTarget(c14931404.sptg)
-	e2:SetOperation(c14931404.spop)
+	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetCategory(CATEGORY_TOGRAVE)
+	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e2:SetProperty(EFFECT_FLAG_DELAY)
+	e2:SetCountLimit(1,{id,1})
+	e2:SetTarget(s.tgtg)
+	e2:SetOperation(s.tgop)
 	c:RegisterEffect(e2)
+	--draw
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetCategory(CATEGORY_DISABLE)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
+	e3:SetCode(EVENT_TO_GRAVE)
+	e3:SetCountLimit(1,{id,2})
+	e3:SetCondition(s.drcon)
+	e3:SetTarget(s.drtg)
+	e3:SetOperation(s.drop)
+	c:RegisterEffect(e3)
 end
-function c14931404.exmatfilter(c,scard,sumtype,tp)
-	return c:IsSetCard(0xb93,scard,sumtype,tp) and c:IsType(TYPE_TOKEN,scard,sumtype,tp)
+function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.IsMainPhase()
 end
-function c14931404.matfilter(c)
-	return c:IsType(TYPE_TUNER)
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+		and Duel.IsExistingMatchingCard(Card.IsAbleToGrave,tp,LOCATION_HAND,0,1,c) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_HANDES,nil,0,tp,1)
 end
-function c14931404.valcheck(e,c)
-	local g=c:GetMaterial()
-	local ct=g:FilterCount(c14931404.matfilter,nil)
-	e:GetLabelObject():SetLabel(ct)
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if not c:IsRelateToEffect(e) or Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)<1 then return end
+	Duel.DiscardHand(tp,aux.TRUE,1,1,REASON_EFFECT+REASON_DISCARD)
 end
-function c14931404.drcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_SYNCHRO)
+function s.tgfilter(c)
+	return c:IsSetCard(0xb93) and c:IsAbleToGrave()
 end
-function c14931404.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local ct=e:GetLabel()
-	if chk==0 then return ct>0 and Duel.IsPlayerCanDraw(tp,ct) end
-	Duel.SetTargetPlayer(tp)
-	Duel.SetTargetParam(ct)
-	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,ct)
+function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
 end
-function c14931404.drop(e,tp,eg,ep,ev,re,r,rp)
-	local ct=e:GetLabel()
-	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
-	local dr=Duel.Draw(p,d,REASON_EFFECT)
-	if p==tp and dr~=0 then
-	Duel.DiscardHand(tp,nil,dr,dr,REASON_EFFECT)
-	Duel.ShuffleHand(tp)
+function s.tgop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local g=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if #g>0 then
+		Duel.SendtoGrave(g,REASON_EFFECT)
 	end
 end
-function c14931404.spfilter(c,e,tp)
-	return c:IsSetCard(0xb93) and c:IsType(TYPE_MONSTER) and c:IsLevelBelow(7) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)
+function s.drcon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsReason(REASON_EFFECT)
 end
-function c14931404.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and c14931404.spfilter(chkc,e,tp) end
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingTarget(c14931404.spfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectTarget(tp,c14931404.spfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,0,0)
+function s.filter(c)
+	return c:IsFaceup() and not c:IsDisabled() and c:IsType(TYPE_EFFECT)
 end
-function c14931404.spop(e,tp,eg,ep,ev,re,r,rp)
+function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return s.filter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+	local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_DISABLE,g,1,0,0)
+end
+function s.drop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
-		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP_DEFENSE)
+	if tc:IsFaceup() and tc:IsRelateToEffect(e) and tc:IsMonster() and not tc:IsDisabled() then
+		Duel.NegateRelatedChain(tc,RESET_TURN_SET)
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_DISABLE)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		tc:RegisterEffect(e1)
+		local e2=Effect.CreateEffect(c)
+		e2:SetType(EFFECT_TYPE_SINGLE)
+		e2:SetCode(EFFECT_DISABLE_EFFECT)
+		e2:SetValue(RESET_TURN_SET)
+		e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		tc:RegisterEffect(e2)
 	end
 end

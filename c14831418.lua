@@ -10,6 +10,7 @@ function s.initial_effect(c)
 		fusfilter=s.ffilter,
 		extrafil=s.fextra,
 		extratg=s.extratg})
+	e1:SetCondition(function() return Duel.IsMainPhase() end)
 	e1:SetCost(s.cost)
 	e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
 	c:RegisterEffect(e1)
@@ -78,6 +79,7 @@ end
 function s.additional_filter(c,e)
 	return c:IsAbleToGrave() and c:IsSpellTrap()
 		and (not e:IsHasType(EFFECT_TYPE_ACTIVATE) or e:GetHandler()~=c)
+		and not (c:IsSetCard(0x46) and c:IsType(TYPE_QUICKPLAY) and c:IsLocation(LOCATION_ONFIELD))
 end
 function s.extratg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end

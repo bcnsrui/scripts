@@ -1,4 +1,4 @@
---애매한 여행(유노미 퓨전)
+--길고 긴 여행의 끝에 우리들은(유노미 퓨전)
 local s,id=GetID()
 if not GetID then
 	id=c:GetOriginalCode()
@@ -9,9 +9,7 @@ function s.initial_effect(c)
 		handler=c,
 		fusfilter=s.ffilter,
 		extrafil=s.fextra,
-		extratg=s.extratg,
-		extraop=s.extraop,
-		stage2=s.stage2})
+		extratg=s.extratg})
 	e1:SetCondition(function() return Duel.IsMainPhase() end)
 	e1:SetCost(s.cost)
 	e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
@@ -60,8 +58,11 @@ function s.ffilter(c)
 	return c:IsRankAbove(1)
 end
 function s.fextra(e,tp,mg)
-	local sg=Duel.GetMatchingGroup(s.additional_filter,tp,LOCATION_ONFIELD+LOCATION_HAND,0,nil,e)
-	return sg,aux.TRUE
+	local sg=Duel.GetMatchingGroup(s.additional_filter,tp,LOCATION_ONFIELD+LOCATION_HAND+LOCATION_EXTRA,0,nil,e)
+	return sg,s.fcheck
+end
+function s.fcheck(tp,sg,fc)
+	return sg:FilterCount(Card.IsLocation,nil,LOCATION_EXTRA)<=1
 end
 function s.additional_filter(c,e)
 	return c:IsAbleToGrave() and (c:IsSpellTrap() or c:IsLocation(LOCATION_EXTRA))
@@ -70,15 +71,5 @@ function s.additional_filter(c,e)
 end
 function s.extratg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,0,tp,LOCATION_ONFIELD+LOCATION_HAND)
-end
-function s.extraop(e,tc,tp,sg)
-	e:SetLabel(sg:FilterCount(Card.IsSpell,nil))
-end
-function s.stage2(e,tc,tp,sg,chk)
-	local ct=e:GetLabel()
-	if chk==1 and ct>0 and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
-		Duel.BreakEffect()
-		Duel.Draw(tp,1,REASON_EFFECT)
-	end
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,0,tp,LOCATION_ONFIELD+LOCATION_HAND+LOCATION_EXTRA)
 end

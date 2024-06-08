@@ -1,104 +1,73 @@
---우주를 넘는 모험소녀
+--소원을 지피며 노래하는 소녀
 local s,id=GetID()
-if not GetID then
-	id=c:GetOriginalCode()
-	s="c"..id
-end
 function s.initial_effect(c)
-	--fusion material
-	c:EnableReviveLimit()
-	c:Rankmonster()
-	Fusion.AddProcMix(c,true,true,14831401,aux.FilterBoolFunctionEx(Card.IsSetCard,0xb83))
-	--destroy
+	--special summon
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_TOGRAVE)
-	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e1:SetProperty(EFFECT_FLAG_DELAY)
-	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e1:SetCondition(s.descon)
-	e1:SetTarget(s.destg)
-	e1:SetOperation(s.desop)
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_SPSUMMON_PROC)
+	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
+	e1:SetRange(LOCATION_HAND)
+	e1:SetCountLimit(1,id)
+	e1:SetCondition(s.spcon)
+	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
-	--disable attack
+	--salvage
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_DISABLE)
-	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetCode(EVENT_FREE_CHAIN)
-	e2:SetCountLimit(1)
-	e2:SetTarget(s.distg)
-	e2:SetOperation(s.disop)
+	e2:SetCountLimit(1,{id,1})
+	e2:SetCost(s.cost)
+	e2:SetTarget(s.target)
+	e2:SetOperation(s.activate)
 	c:RegisterEffect(e2)
-	--to hand
-	local e3=Effect.CreateEffect(c)
-	e3:SetCategory(CATEGORY_SEARCH+CATEGORY_TOHAND+CATEGORY_HANDES)
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e3:SetCode(EVENT_TO_GRAVE)
-	e3:SetCountLimit(1,{id,1})
-	e3:SetProperty(EFFECT_FLAG_DELAY)
-	e3:SetTarget(s.settg)
-	e3:SetOperation(s.setop)
-	c:RegisterEffect(e3)
 end
-function s.descon(e,tp,eg,ep,ev,re,r,rp)
-	if not re then return false end
-	local rc=re:GetHandler()
-	return (rc:IsSetCard(0xb83) or rc:IsCode(14831401)) and e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
+s.listed_names={id,CARD_Yunomi}
+function s.spfilter(c)
+	return c:IsSetCard(0xb83) and c:IsFaceup() and c:IsAbleToHandAsCost()
 end
-function s.tgfilter(c)
-	return c:IsAbleToGrave()
+function s.spcon(e,c)
+	if c==nil then return true end
+	local tp=c:GetControler()
+	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	return ft>-1 and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_ONFIELD,0,1,nil,ft)
 end
-function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_EXTRA,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_EXTRA)
+function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
+	local ft=Duel.GetLocationCount(tp,LOCATION_ONFIELD)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
+	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_ONFIELD,0,1,1,nil,ft)
+	Duel.SendtoHand(g,nil,REASON_COST)
 end
-function s.desop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_EXTRA,0,1,1,nil)
-	if g:GetCount()>0 then
-		Duel.SendtoGrave(g,REASON_EFFECT)
-	end
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():IsReleasable() end
+	Duel.Release(e:GetHandler(),REASON_COST)
 end
-function s.disfilter(c)
-	return c:IsFaceup() and not c:IsDisabled()
+function s.filter(c)
+	return c:IsFaceup() and c:IsSummonType(SUMMON_TYPE_SPECIAL) and not c:IsDisabled() and c:IsType(TYPE_EFFECT)
 end
-function s.distg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_ONFIELD) and s.disfilter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(s.disfilter,tp,0,LOCATION_ONFIELD,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_NEGATE)
-	local g=Duel.SelectTarget(tp,s.disfilter,tp,0,LOCATION_ONFIELD,1,1,nil)
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsControler(1-tp) and chkc:IsLocation(LOCATION_MZONE) and s.filter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,0,LOCATION_MZONE,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+	local g=Duel.SelectTarget(tp,s.filter,tp,0,LOCATION_MZONE,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DISABLE,g,1,0,0)
 end
-function s.disop(e,tp,eg,ep,ev,re,r,rp)
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if tc:IsFaceup() and tc:IsRelateToEffect(e) then
+	if tc:IsFaceup() and tc:IsRelateToEffect(e) and tc:IsMonster() and not tc:IsDisabled() and tc:IsControler(1-tp) then
 		Duel.NegateRelatedChain(tc,RESET_TURN_SET)
-		local e1=Effect.CreateEffect(e:GetHandler())
+		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_DISABLE)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		tc:RegisterEffect(e1)
-		local e2=Effect.CreateEffect(e:GetHandler())
+		local e2=Effect.CreateEffect(c)
 		e2:SetType(EFFECT_TYPE_SINGLE)
 		e2:SetCode(EFFECT_DISABLE_EFFECT)
 		e2:SetValue(RESET_TURN_SET)
-		e2:SetReset(RESET_EVENT+RESETS_STANDARD)
+		e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		tc:RegisterEffect(e2)
-	end
-end
-function s.setfilter(c,code)
-	return c:IsSetCard(0xb83) and not c:IsSetCard(0x46) and c:IsSSetable()
-end
-function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_DECK,0,1,nil,re:GetHandler():GetCode()) end
-end
-function s.setop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
-	local g=Duel.SelectMatchingCard(tp,s.setfilter,tp,LOCATION_DECK,0,1,1,nil,re:GetHandler():GetCode())
-	if #g>0 then
-		Duel.SSet(tp,g)
 	end
 end

@@ -1,74 +1,77 @@
---사요나라 인베이더(유노미 퓨전)
+--상처받지 않는 로보틱 걸
 local s,id=GetID()
 if not GetID then
 	id=c:GetOriginalCode()
 	s="c"..id
 end
 function s.initial_effect(c)
-	local e1=Fusion.CreateSummonEff({
-		handler=c,
-		fusfilter=s.ffilter,
-		extrafil=s.fextra,
-		extratg=s.extratg})
-	e1:SetCost(s.cost)
-	e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
+	c:EnableReviveLimit()
+	c:Rankmonster()
+	Fusion.AddProcMix(c,true,true,s.matfilter,
+	aux.FilterBoolFunctionEx(Card.IsSetCard,0xb83),
+	aux.FilterBoolFunctionEx(Card.IsType,TYPE_FUSION))
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e1:SetProperty(EFFECT_FLAG_DELAY)
+	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e1:SetCondition(s.imcon)
+	e1:SetTarget(s.target)
+	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
-	Duel.AddCustomActivityCounter(id,ACTIVITY_SPSUMMON,s.counterfilter)
-	aux.GlobalCheck(s,function()
-		local ge1=Effect.CreateEffect(c)
-		ge1:SetType(EFFECT_TYPE_SINGLE)
-		ge1:SetCode(EFFECT_EXTRA_FUSION_MATERIAL)
-		ge1:SetValue(aux.FALSE)
-		local ge2=Effect.CreateEffect(c)
-		ge2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_GRANT)
-		ge2:SetTarget(aux.TargetBoolFunction(Card.IsSpellTrap))
-		ge2:SetTargetRange(LOCATION_ALL,LOCATION_ALL)
-		ge2:SetLabelObject(ge1)
-		Duel.RegisterEffect(ge2,0)
-	end)
-
+	--immune
+	local e2=Effect.CreateEffect(c)
+	e2:SetCategory(CATEGORY_TOHAND)
+	e2:SetType(EFFECT_TYPE_QUICK_O)
+	e2:SetCode(EVENT_FREE_CHAIN)
+	e2:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_NO_TURN_RESET)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetCountLimit(1,id)
+	e2:SetTarget(s.target2)
+	e2:SetOperation(s.activate2)
+	c:RegisterEffect(e2)
 end
---Oath
-function s.counterfilter(c)
-	return not c:IsSummonLocation(LOCATION_EXTRA) or c:IsType(TYPE_FUSION)
+function s.matfilter(c,fc,sumtype,tp)
+    return c:ListsCode(CARD_Yunomi) and c:GetLevel()==3
 end
-function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetCustomActivityCount(id,tp,ACTIVITY_SPSUMMON)==0 end
-	--Cannot Special Summon from the Extra Deck, except Fusion Monsters
-	local e1=Effect.CreateEffect(e:GetHandler())
-	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_OATH)
-	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
-	e1:SetTargetRange(1,0)
-	e1:SetTarget(s.splimit)
-	e1:SetReset(RESET_PHASE+PHASE_END)
-	Duel.RegisterEffect(e1,tp)
-	--Clock Lizard check
-	aux.addTempLizardCheck(e:GetHandler(),tp,s.lizfilter)
+function s.imcon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
 end
-function s.splimit(e,c,sump,sumtype,sumpos,targetp,se)
-	return not c:IsType(TYPE_FUSION) and c:IsLocation(LOCATION_EXTRA)
+function s.filter(c)
+	return c:IsSetCard(0xb83) and c:IsSetCard(0x46) and not c:IsForbidden()
 end
-function s.lizfilter(e,c)
-	return not c:IsOriginalType(TYPE_FUSION)
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil)
+	and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 end
 end
---Fusion Summon
-function s.ffilter(c)
-	return c:IsRankAbove(1)
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
+	local tc=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,1,nil):GetFirst()
+	if tc and Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true) then
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetCode(EFFECT_CHANGE_TYPE)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+		e1:SetValue(TYPE_SPELL+TYPE_CONTINUOUS)
+		tc:RegisterEffect(e1)
+	end
 end
-function s.fextra(e,tp,mg)
-	local sg=Duel.GetMatchingGroup(s.additional_filter,tp,LOCATION_ONFIELD+LOCATION_HAND+LOCATION_DECK,0,nil,e)
-	return sg,s.fcheck
+function s.target2(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chkc then return false end
+	if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToHand,tp,LOCATION_ONFIELD,0,1,e:GetHandler())
+		and Duel.IsExistingTarget(Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
+	local g1=Duel.SelectTarget(tp,Card.IsAbleToHand,tp,LOCATION_ONFIELD,0,1,1,e:GetHandler())
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
+	local g2=Duel.SelectTarget(tp,Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,1,nil)
+	g1:Merge(g2)
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g1,2,0,0)
 end
-function s.fcheck(tp,sg,fc)
-	return sg:FilterCount(Card.IsLocation,nil,LOCATION_DECK)<=1
-end
-function s.additional_filter(c,e)
-	return c:IsAbleToGrave() and (c:IsSpellTrap() or c:IsLocation(LOCATION_DECK))
-		and (not e:IsHasType(EFFECT_TYPE_ACTIVATE) or e:GetHandler()~=c)
-end
-function s.extratg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,0,tp,LOCATION_ONFIELD+LOCATION_HAND+LOCATION_DECK)
+function s.activate2(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
+	local tg=g:Filter(Card.IsRelateToEffect,nil,e)
+	if #tg>0 then
+		Duel.SendtoHand(tg,nil,REASON_EFFECT)
+	end
 end

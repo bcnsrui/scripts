@@ -1,134 +1,77 @@
---빙글빙글 무적의 판타지 소녀
+--은하수에 일렁이는 젤리피쉬
 local s,id=GetID()
 if not GetID then
 	id=c:GetOriginalCode()
 	s="c"..id
 end
 function s.initial_effect(c)
+	--fusion material
 	c:EnableReviveLimit()
 	c:Rankmonster()
-	Fusion.AddProcMix(c,true,true,s.matfilter,
-	aux.FilterBoolFunctionEx(Card.IsRankAbove,1),
-	aux.FilterBoolFunctionEx(Card.IsSetCard,0xb83))
-	--immune
+	Fusion.AddProcMixN(c,true,true,aux.FilterBoolFunctionEx(Card.IsSetCard,0xb83),2)
+	--destroy
 	local e1=Effect.CreateEffect(c)
+	e1:SetCategory(CATEGORY_DESTROY)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e1:SetProperty(EFFECT_FLAG_DELAY)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e1:SetCondition(s.imcon)
-	e1:SetTarget(s.target)
-	e1:SetOperation(s.activate)
+	e1:SetCondition(s.descon)
+	e1:SetTarget(s.destg)
+	e1:SetOperation(s.desop)
 	c:RegisterEffect(e1)
-	--Negate the activation of a card or effect
+	--cannot be target
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
-	e2:SetType(EFFECT_TYPE_QUICK_O)
-	e2:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
-	e2:SetCode(EVENT_CHAINING)
+	e2:SetType(EFFECT_TYPE_FIELD)
+	e2:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
+	e2:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetCountLimit(1)
-	e2:SetCondition(s.negcon)
-	e2:SetTarget(s.negtg)
-	e2:SetOperation(s.negop)
+	e2:SetTargetRange(LOCATION_MZONE,0)
+	e2:SetTarget(s.tglimit)
+	e2:SetValue(aux.tgoval)
 	c:RegisterEffect(e2)
 	--to hand
 	local e3=Effect.CreateEffect(c)
-	e3:SetCategory(CATEGORY_SEARCH+CATEGORY_SPECIAL_SUMMON)
+	e3:SetCategory(CATEGORY_TOHAND)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetCode(EVENT_TO_GRAVE)
-	e3:SetCountLimit(1,{id,1})
-	e3:SetProperty(EFFECT_FLAG_DELAY)
-	e3:SetTarget(s.sptg)
-	e3:SetOperation(s.spop)
+	e3:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
+	e3:SetCountLimit(1,id)
+	e3:SetTarget(s.thtg)
+	e3:SetOperation(s.thop)
 	c:RegisterEffect(e3)
 end
-function s.matfilter(c,fc,sumtype,tp)
-	return c:ListsCode(CARD_Yunomi) and c:GetLevel()==3
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
 end
-function s.imcon(e,tp,eg,ep,ev,re,r,rp)
-	if not re then return false end
-	local rc=re:GetHandler()
-	return (rc:IsSetCard(0xb83) or rc:IsCode(14831401)) and e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(nil,tp,0,LOCATION_ONFIELD,1,nil) end
+	local g=Duel.GetMatchingGroup(nil,tp,0,LOCATION_ONFIELD,nil)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
-function s.filter1(c)
-	return c:IsSetCard(0xb83) and c:IsSetCard(0x46) and not c:IsForbidden()
-end
-function s.filter2(c)
-	return c:IsRankAbove(1) and c:IsType(TYPE_FUSION) and not c:IsForbidden()
-end
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.filter1,tp,LOCATION_DECK,0,1,nil)
-	and Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_EXTRA,0,1,nil)
-	and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 end
-end
-function s.activate(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-	local tc1=Duel.SelectMatchingCard(tp,s.filter1,tp,LOCATION_DECK,0,1,1,nil):GetFirst()
-	local tc2=Duel.SelectMatchingCard(tp,s.filter2,tp,LOCATION_EXTRA,0,1,1,nil):GetFirst()
-	if tc1 and Duel.MoveToField(tc1,tp,tp,LOCATION_SZONE,POS_FACEUP,true) then
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetCode(EFFECT_CHANGE_TYPE)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-		e1:SetReset(RESET_EVENT|RESETS_STANDARD)
-		e1:SetValue(TYPE_SPELL+TYPE_CONTINUOUS)
-		tc1:RegisterEffect(e1)
-	end
-	if tc2 and Duel.MoveToField(tc2,tp,tp,LOCATION_SZONE,POS_FACEUP,true) then
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetCode(EFFECT_CHANGE_TYPE)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-		e1:SetReset(RESET_EVENT|RESETS_STANDARD)
-		e1:SetValue(TYPE_SPELL+TYPE_CONTINUOUS)
-		tc2:RegisterEffect(e1)
-	end
-end
-function s.negcon(e,tp,eg,ep,ev,re,r,rp)
-	return not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED) and Duel.IsChainNegatable(ev)
-end
-function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-	Duel.SetOperationInfo(0,CATEGORY_NEGATE,eg,1,0,0)
-	local rc=re:GetHandler()
-	if rc:IsDestructable() and rc:IsRelateToEffect(re) then
-		Duel.SetOperationInfo(0,CATEGORY_DESTROY,eg,1,0,0)
-	end
-end
-function s.negop(e,tp,eg,ep,ev,re,r,rp)
-	local rc=re:GetHandler()
-	if not Duel.NegateActivation(ev) or not rc:IsRelateToEffect(re) then return end
-	if Duel.Destroy(eg,REASON_EFFECT)<1 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(tp,Card.IsAbleToGrave,tp,LOCATION_ONFIELD,0,1,1,e:GetHandler())
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+	local g=Duel.SelectMatchingCard(tp,nil,tp,0,LOCATION_ONFIELD,1,1,nil)
 	if #g>0 then
-		Duel.BreakEffect()
-		Duel.SendtoGrave(g,REASON_EFFECT)
+		Duel.HintSelection(g)
+		Duel.Destroy(g,REASON_EFFECT)
 	end
 end
-function s.filter(c,e,tp,ft)
-	return c:ListsCode(CARD_Yunomi) and c:GetLevel()==3 
-	and (c:IsAbleToHand() or (ft>0 and c:IsCanBeSpecialSummoned(e,0,tp,false,false)))
+function s.tglimit(e,c)
+	return c:IsType(TYPE_MONSTER)
 end
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	if chk==0 then return e:GetHandler():IsRelateToEffect(e)
-		and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil,e,tp,ft) end
+function s.thfilter(c)
+	return c:IsSetCard(0xb83) and c:IsAbleToHand()
 end
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil,e,tp,ft)
-	local tc=g:GetFirst()
-	if tc then
-		if ft>0 and tc:IsCanBeSpecialSummoned(e,0,tp,false,false)
-			and (not tc:IsAbleToHand() or Duel.SelectYesNo(tp,aux.Stringid(id,1))) then
-			Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
-		else
-			Duel.SendtoHand(tc,nil,REASON_EFFECT)
-			Duel.ConfirmCards(1-tp,tc)
-		end
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.thfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.thfilter,tp,LOCATION_GRAVE,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectTarget(tp,s.thfilter,tp,LOCATION_GRAVE,0,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
+	if tc:IsRelateToEffect(e) then
+		Duel.SendtoHand(tc,nil,REASON_EFFECT)
 	end
 end

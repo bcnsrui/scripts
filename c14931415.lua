@@ -1,76 +1,63 @@
---raindrop starnari
-function c14931415.initial_effect(c)
-	c:SetSPSummonOnce(14931415)
-	--link summon
-	c:EnableReviveLimit()
-	Link.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsSetCard,0xb93),2)
-	--special summon
+--Raindrop Raspberrying
+local s,id=GetID()
+function s.initial_effect(c)
+	--spsummon
 	local e1=Effect.CreateEffect(c)
-	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_HANDES)
-	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e1:SetCondition(c14931415.drcon)
-	e1:SetTarget(c14931415.sptg)
-	e1:SetOperation(c14931415.spop)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_DESTROY)
+	e1:SetType(EFFECT_TYPE_ACTIVATE)
+	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_END_PHASE)
+	e1:SetCountLimit(1,id)
+	e1:SetTarget(s.destg)
+	e1:SetOperation(s.desop)
 	c:RegisterEffect(e1)
-	--atk
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(14931415,1))
-	e2:SetCategory(CATEGORY_ATKCHANGE)
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
-	e2:SetCode(EVENT_ATTACK_ANNOUNCE)
-	e2:SetCondition(c14931415.atkcon)
-	e2:SetOperation(c14931415.atkop)
+	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e2:SetProperty(EFFECT_FLAG_DELAY)
+	e2:SetCode(EVENT_TO_GRAVE)
+	e2:SetCountLimit(1,{id,1})
+	e2:SetCondition(s.setcon)
+	e2:SetTarget(s.settg)
+	e2:SetOperation(s.setop)
 	c:RegisterEffect(e2)
-	--actlimit
-	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_FIELD)
-	e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	e3:SetCode(EFFECT_CANNOT_ACTIVATE)
-	e3:SetRange(LOCATION_MZONE)
-	e3:SetTargetRange(0,1)
-	e3:SetValue(1)
-	e3:SetCondition(c14931415.actcon)
-	c:RegisterEffect(e3)
 end
-function c14931415.drcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_LINK)
+function s.desfilter(c,tp,oc)
+	return c:IsFaceup() and c:IsSetCard(0xb93) and c:IsMonster()
+	and Duel.IsExistingTarget(aux.TRUE,tp,0,LOCATION_ONFIELD,1,Group.FromCards(c,oc))
 end
-function c14931415.spfilter(c,e,tp)
-	return c:IsSetCard(0xb93) and c:IsType(TYPE_MONSTER) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)
-end
-function c14931415.hfilter(c)
-	return c:IsType(TYPE_MONSTER)
-end
-function c14931415.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>-1
-		and Duel.IsExistingMatchingCard(c14931415.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp) and Duel.IsExistingMatchingCard(c14931415.hfilter,tp,LOCATION_HAND,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK)
-end
-function c14931415.spop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,c14931415.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
-	if g:GetCount()>0 then
-		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP_DEFENSE)
-		Duel.BreakEffect()
-		Duel.DiscardHand(tp,c14931415.hfilter,1,1,REASON_EFFECT)
-	end
-end
-function c14931415.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetAttackTarget()~=nil
-end
-function c14931415.atkop(e,tp,eg,ep,ev,re,r,rp)
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) and c:IsFaceup() then
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_SET_ATTACK_FINAL)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_DISABLE+RESET_PHASE+PHASE_DAMAGE)
-		e1:SetValue(3200)
-		c:RegisterEffect(e1)
+	if chkc then return false end
+	if chk==0 then return Duel.IsExistingTarget(s.desfilter,tp,LOCATION_MZONE,0,1,nil,tp,c) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+	local g=Duel.SelectTarget(tp,s.desfilter,tp,LOCATION_MZONE,0,1,1,nil,tp,c)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+	g:AddCard(c)
+	local g2=Duel.SelectTarget(tp,aux.TRUE,tp,0,LOCATION_ONFIELD,1,1,g)
+	g:RemoveCard(c)
+	g:Merge(g2)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,2,0,0)
+end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+	local tg=Duel.GetTargetCards(e)
+	if #tg==2 and tg:FilterCount(Card.IsRelateToEffect,nil,e)==2 then
+		Duel.Destroy(tg,REASON_EFFECT)
 	end
 end
-function c14931415.actcon(e)
-	return Duel.GetAttacker()==e:GetHandler() or Duel.GetAttackTarget()==e:GetHandler()
+function s.setcon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsReason(REASON_EFFECT) and e:GetHandler():GetReasonPlayer()==tp
+end
+function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return c:IsSSetable() end
+	Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,c,1,tp,0)
+end
+function s.setop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) and c:IsSSetable() then
+		Duel.SSet(tp,c)
+	end
 end

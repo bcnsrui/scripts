@@ -4,7 +4,7 @@ if not GetID then
 	id=c:GetOriginalCode()
 	s="c"..id
 end
-function c14941423.initial_effect(c)
+function s.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
 	c:Rankmonster()
@@ -15,17 +15,18 @@ function c14941423.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e1:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
-	e1:SetCondition(c14941423.discon)
-	e1:SetTarget(c14941423.distg)
-	e1:SetOperation(c14941423.disop)
+	e1:SetCondition(s.discon)
+	e1:SetTarget(s.distg)
+	e1:SetOperation(s.disop)
 	c:RegisterEffect(e1)
 	--atk up
 	local e2=Effect.CreateEffect(c)
 	e2:SetCategory(CATEGORY_ATKCHANGE)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
 	e2:SetCode(EVENT_ATTACK_ANNOUNCE)
-	e2:SetCondition(c14941423.atkcon)
-	e2:SetOperation(c14941423.atkop)
+	e2:SetCountLimit(1)
+	e2:SetCondition(s.atkcon)
+	e2:SetOperation(s.atkop)
 	c:RegisterEffect(e2)
 	--actlimit
 	local e3=Effect.CreateEffect(c)
@@ -35,30 +36,30 @@ function c14941423.initial_effect(c)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetTargetRange(0,1)
 	e3:SetValue(1)
-	e3:SetCondition(c14941423.actcon)
+	e3:SetCondition(s.actcon)
 	c:RegisterEffect(e3)
 end
-function c14941423.ffilter2(c)
+function s.ffilter2(c)
 	return c:GetSummonLocation()==LOCATION_EXTRA and c:IsLocation(LOCATION_MZONE)
 end
-function c14941423.xmatcon(e)
+function s.xmatcon(e)
 	local c=e:GetHandler()
 	return c:IsSetCard(0xb94) and c:IsType(TYPE_XYZ)
 end
-function c14941423.discon(e,tp,eg,ep,ev,re,r,rp)
+function s.discon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
 end
-function c14941423.disfilter(c)
+function s.disfilter(c)
 	return c:IsFaceup() and not c:IsDisabled()
 end
-function c14941423.distg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_ONFIELD) and c14941423.disfilter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(c14941423.disfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
+function s.distg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_ONFIELD) and s.disfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.disfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	local g=Duel.SelectTarget(tp,c14941423.disfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
+	local g=Duel.SelectTarget(tp,s.disfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DISABLE,g,1,0,0)
 end
-function c14941423.disop(e,tp,eg,ep,ev,re,r,rp)
+function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsFaceup() and tc:IsRelateToEffect(e) then
 		Duel.NegateRelatedChain(tc,RESET_TURN_SET)
@@ -75,10 +76,10 @@ function c14941423.disop(e,tp,eg,ep,ev,re,r,rp)
 		tc:RegisterEffect(e2)
 	end
 end
-function c14941423.atkcon(e,tp,eg,ep,ev,re,r,rp)
+function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetAttackTarget()~=nil
 end
-function c14941423.atkop(e,tp,eg,ep,ev,re,r,rp)
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToBattle() and c:IsFaceup() then
 		local e1=Effect.CreateEffect(c)
@@ -89,6 +90,6 @@ function c14941423.atkop(e,tp,eg,ep,ev,re,r,rp)
 		c:RegisterEffect(e1)
 	end
 end
-function c14941423.actcon(e)
+function s.actcon(e)
 	return Duel.GetAttacker()==e:GetHandler() or Duel.GetAttackTarget()==e:GetHandler()
 end

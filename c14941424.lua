@@ -4,7 +4,7 @@ if not GetID then
 	id=c:GetOriginalCode()
 	s="c"..id
 end
-function c14941424.initial_effect(c)
+function s.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
 	c:Rankmonster()
@@ -15,9 +15,9 @@ function c14941424.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e1:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e1:SetCondition(c14941424.condition)
-	e1:SetTarget(c14941424.target)
-	e1:SetOperation(c14941424.activate)
+	e1:SetCondition(s.condition)
+	e1:SetTarget(s.target)
+	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
    --to hand
 	local e2=Effect.CreateEffect(c)
@@ -26,44 +26,44 @@ function c14941424.initial_effect(c)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetCountLimit(1)
-	e2:SetTarget(c14941424.thtg)
-	e2:SetOperation(c14941424.thop)
+	e2:SetTarget(s.thtg)
+	e2:SetOperation(s.thop)
 	c:RegisterEffect(e2)
 end
-function c14941424.condition(e,tp,eg,ep,ev,re,r,rp)
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
 end
-function c14941424.filter(c)
+function s.filter(c)
 	return c:IsPosition(POS_FACEUP_ATTACK)
 end
-function c14941424.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and c14941424.filter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(c14941424.filter,tp,0,LOCATION_MZONE,1,nil) end
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and s.filter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,0,LOCATION_MZONE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectTarget(tp,c14941424.filter,tp,0,LOCATION_MZONE,1,1,nil)
+	local g=Duel.SelectTarget(tp,s.filter,tp,0,LOCATION_MZONE,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
-function c14941424.activate(e,tp,eg,ep,ev,re,r,rp)
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then
 		Duel.Destroy(tc,REASON_EFFECT)
 	end
 end
-function c14941424.thfilter(c)
+function s.thfilter(c)
 	return c:IsSetCard(0xb94) and c:IsAbleToHand()
 end
-function c14941424.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDiscardDeck(tp,3) end
 end
-function c14941424.thop(e,tp,eg,ep,ev,re,r,rp)
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.IsPlayerCanDiscardDeck(tp,3) then
 		Duel.ConfirmDecktop(tp,3)
 		local g=Duel.GetDecktopGroup(tp,3)
 		if g:GetCount()>0 then
 			Duel.DisableShuffleCheck()
-			if g:IsExists(c14941424.thfilter,1,nil) and Duel.SelectYesNo(tp,aux.Stringid(14941424,1)) then
+			if g:IsExists(s.thfilter,1,nil) and Duel.SelectYesNo(tp,aux.Stringid(14941424,1)) then
 				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-				local sg=g:FilterSelect(tp,c14941424.thfilter,1,1,nil)
+				local sg=g:FilterSelect(tp,s.thfilter,1,1,nil)
 				Duel.SendtoHand(sg,nil,REASON_EFFECT)
 				Duel.ConfirmCards(1-tp,sg)
 				Duel.ShuffleHand(tp)

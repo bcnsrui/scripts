@@ -1,90 +1,71 @@
---은하수에 일렁이는 젤리피쉬
+--카드캡터 체리
 local s,id=GetID()
-if not GetID then
-	id=c:GetOriginalCode()
-	s="c"..id
-end
 function s.initial_effect(c)
-	--fusion material
-	c:EnableReviveLimit()
-	c:Rankmonster()
-	Fusion.AddProcMixN(c,true,true,aux.FilterBoolFunctionEx(Card.IsSetCard,0xb83),2)
-	--destroy
+	--fusion substitute
 	local e1=Effect.CreateEffect(c)
-	e1:SetCategory(CATEGORY_REMOVE)
-	e1:SetType(EFFECT_TYPE_QUICK_O)
-	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetRange(LOCATION_MZONE)
-	e1:SetCountLimit(1)
-	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e1:SetTarget(s.destg)
-	e1:SetOperation(s.desop)
+	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e1:SetType(EFFECT_TYPE_IGNITION)
+	e1:SetRange(LOCATION_HAND)
+	e1:SetCountLimit(1,id)
+	e1:SetCost(s.cost)
+	e1:SetTarget(s.shtg)
+	e1:SetOperation(s.shop)
 	c:RegisterEffect(e1)
-	--cannot be target
+	--tohand
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e2:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e2:SetProperty(EFFECT_FLAG_DELAY)
+	e2:SetCode(EVENT_BE_MATERIAL)
+	e2:SetCountLimit(1,{id,1})
 	e2:SetCondition(s.tgcon)
+	e2:SetTarget(s.tgtg)
 	e2:SetOperation(s.tgop)
 	c:RegisterEffect(e2)
-	--to hand
-	local e3=Effect.CreateEffect(c)
-	e3:SetCategory(CATEGORY_TOHAND)
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e3:SetCode(EVENT_TO_GRAVE)
-	e3:SetCountLimit(1,{id,1})
-	e3:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
-	e3:SetTarget(s.thtg)
-	e3:SetOperation(s.thop)
-	c:RegisterEffect(e3)
 end
-function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chkc then return chkc:GetLocation()==LOCATION_MZONE and chkc:IsAbleToRemove() end
-	if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToRemove,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectTarget(tp,Card.IsAbleToRemove,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)
+s.listed_names={id,CARD_Yunomi}
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return c:IsDiscardable() end
+	Duel.SendtoGrave(c,REASON_COST+REASON_DISCARD)
 end
-function s.desop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) then
-		Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)
-	end
+function s.filter(c)
+	return c:IsCode(14831414) and (c:IsAbleToHand() or c:GetActivateEffect():IsActivatable(tp,true,true))
+end
+function s.shtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
+end
+function s.shop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(id,0))
+	local tc=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil,tp):GetFirst()
+	aux.ToHandOrElse(tc,tp,function(c)
+								local te=tc:GetActivateEffect()
+								return te:IsActivatable(tp,true,true)
+							end,
+							function(c)
+								Duel.ActivateFieldSpell(tc,e,tp,eg,ep,ev,re,r,rp)
+							end,
+							aux.Stringid(id,2))
 end
 function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
-	if not re then return false end
-	local rc=re:GetHandler()
-	return (rc:IsSetCard(0xb83) or rc:IsCode(14831401)) and e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
-end
-function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
-	e1:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
-	e1:SetRange(LOCATION_MZONE)
-	e1:SetTargetRange(LOCATION_MZONE,0)
-	e1:SetTarget(s.tglimit)
-	e1:SetValue(aux.tgoval)
-	c:RegisterEffect(e1)
+	e:SetLabel(0)
+	if c:IsPreviousLocation(LOCATION_ONFIELD) then e:SetLabel(1) end
+	return c:IsLocation(LOCATION_GRAVE) and c:IsPreviousLocation(LOCATION_DECK+LOCATION_HAND) and r==REASON_FUSION
 end
-function s.tglimit(e,c)
-    return c:IsType(TYPE_MONSTER)
-end
-function s.thfilter(c)
+function s.tgfilter(c)
 	return c:IsSetCard(0xb83) and c:IsAbleToHand()
 end
-function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.thfilter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(s.thfilter,tp,LOCATION_GRAVE,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectTarget(tp,s.thfilter,tp,LOCATION_GRAVE,0,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
+function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
-function s.thop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
-		Duel.SendtoHand(tc,nil,REASON_EFFECT)
+function s.tgop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if g:GetCount()>0 then
+		Duel.SendtoHand(g,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,g)
 	end
 end

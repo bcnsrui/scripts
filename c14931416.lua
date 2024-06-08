@@ -1,68 +1,53 @@
---빗방울 레이냐
-function c14931416.initial_effect(c)
-	c:SetSPSummonOnce(14931416)
-	--link summon
-	Link.AddProcedure(c,nil,2,99,c14931416.lcheck)
-	c:EnableReviveLimit()
-	--disable
+--raindrop sweet heart sunnari
+local s,id=GetID()
+function s.initial_effect(c)
+	--spsummon
 	local e1=Effect.CreateEffect(c)
-	e1:SetCategory(CATEGORY_DESTROY)
-	e1:SetType(EFFECT_TYPE_QUICK_O)
-	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e1:SetRange(LOCATION_MZONE)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetCountLimit(1)
-	e1:SetTarget(c14931416.target)
-	e1:SetOperation(c14931416.operation)
+	e1:SetCountLimit(1,id)
+	e1:SetTarget(s.thtg)
+	e1:SetOperation(s.thop)
 	c:RegisterEffect(e1)
-	--token
 	local e2=Effect.CreateEffect(c)
-	e2:SetCategory(CATEGORY_TOHAND)
+	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e2:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
-	e2:SetCode(EVENT_LEAVE_FIELD)
-	e2:SetCondition(c14931416.spcon)
-	e2:SetTarget(c14931416.sptg)
-	e2:SetOperation(c14931416.spop)
+	e2:SetProperty(EFFECT_FLAG_DELAY)
+	e2:SetCode(EVENT_TO_GRAVE)
+	e2:SetCountLimit(1,{id,1})
+	e2:SetCondition(s.setcon)
+	e2:SetTarget(s.settg)
+	e2:SetOperation(s.setop)
 	c:RegisterEffect(e2)
 end
-function c14931416.lcheck(g,lc,sumtype,tp)
-	return g:IsExists(Card.IsSetCard,1,nil,0xb93,lc,sumtype,tp)
+function s.thfilter(c,e,tp)
+	return c:IsSetCard(0xb93) and c:IsMonster() and c:IsAbleToHand()
 end
-function c14931416.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsFaceup() end
-	if chk==0 then return Duel.IsExistingTarget(Card.IsFaceup,tp,LOCATION_MZONE,0,1,nil)
-		and Duel.IsExistingTarget(Card.IsFaceup,tp,0,LOCATION_MZONE,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g1=Duel.SelectTarget(tp,Card.IsFaceup,tp,LOCATION_MZONE,0,1,1,nil)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g2=Duel.SelectTarget(tp,Card.IsFaceup,tp,0,LOCATION_MZONE,1,1,nil)
-	g1:Merge(g2)
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g1,2,0,0)
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
-function c14931416.operation(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-	local tg=g:Filter(Card.IsRelateToEffect,nil,e)
-	if #tg>0 then
-		Duel.Destroy(tg,REASON_EFFECT)
-	end
-end
-function c14931416.spcon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	return c:IsPreviousPosition(POS_FACEUP) and c:IsPreviousLocation(LOCATION_ONFIELD)
-end
-function c14931416.cfilter(c)
-	return c:IsSetCard(0xb93) and c:IsAbleToHand()
-end
-function c14931416.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c14931416.cfilter,tp,LOCATION_GRAVE,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_GRAVE)
-end
-function c14931416.spop(e,tp,eg,ep,ev,re,r,rp)
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectMatchingCard(tp,c14931416.cfilter,tp,LOCATION_GRAVE,0,1,1,nil)
-	if g:GetCount()>0 then
+	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if #g>0 then
 		Duel.SendtoHand(g,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,g)
+	end
+end
+function s.setcon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsReason(REASON_EFFECT) and e:GetHandler():GetReasonPlayer()==tp
+end
+function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return c:IsSSetable() end
+	Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,c,1,tp,0)
+end
+function s.setop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) and c:IsSSetable() then
+		Duel.SSet(tp,c)
 	end
 end

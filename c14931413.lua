@@ -1,85 +1,88 @@
---Raindrop Raspberry
-function c14931413.initial_effect(c)
-	--synchro summon
-	Xyz.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsSetCard,0xb93),7,2,nil,nil,99)
+--빗방울 블루베리
+local s,id=GetID()
+function s.initial_effect(c)
+	--link summon
 	c:EnableReviveLimit()
-	--material
+	Link.AddProcedure(c,nil,2,4,s.lcheck)
+	--indestructable
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(14931413,0))
-	e1:SetType(EFFECT_TYPE_QUICK_O)
-	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e1:SetCode(EFFECT_IMMUNE_EFFECT)
 	e1:SetRange(LOCATION_MZONE)
-	e1:SetCountLimit(1)
-	e1:SetTarget(c14931413.target)
-	e1:SetOperation(c14931413.operation)
+	e1:SetValue(s.immval)
 	c:RegisterEffect(e1)
-	--to hand
+	--Change the effect
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(14931413,1))
-	e2:SetCategory(CATEGORY_SEARCH+CATEGORY_TOHAND)
+	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetType(EFFECT_TYPE_QUICK_O)
-	e2:SetCode(EVENT_FREE_CHAIN)
+	e2:SetCode(EVENT_CHAINING)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_MAIN_END)
-	e2:SetCondition(c14931413.thcon)
-	e2:SetCost(c14931413.thcost)
-	e2:SetTarget(c14931413.thtg)
-	e2:SetOperation(c14931413.thop)
+	e2:SetCountLimit(1,id)
+	e2:SetCondition(s.chcon)
+	e2:SetTarget(s.chtg)
+	e2:SetOperation(s.chop)
 	c:RegisterEffect(e2)
-	--destroy replace
+	--to hand
 	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	e3:SetCode(EFFECT_DESTROY_REPLACE)
-	e3:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e3:SetRange(LOCATION_MZONE)
-	e3:SetTarget(c14931413.reptg)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetCategory(CATEGORY_TOHAND)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e3:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
+	e3:SetCode(EVENT_TO_GRAVE)
+	e3:SetCountLimit(1,{id,1})
+	e3:SetCondition(s.thcon)
+	e3:SetTarget(s.thtg)
+	e3:SetOperation(s.thop)
 	c:RegisterEffect(e3)
 end
-function c14931413.filter(c,tp)
-	return c:IsFaceup() and not c:IsType(TYPE_TOKEN)
-		and (c:IsControler(tp) or c:IsAbleToChangeControler())
+function s.lcheck(g,lc,sumtype,tp)
+	return g:IsExists(Card.IsSetCard,1,nil,0xb93,lc,sumtype,tp)
 end
-function c14931413.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and c14931413.filter(chkc,tp) and chkc~=e:GetHandler() end
-	if chk==0 then return e:GetHandler():IsType(TYPE_XYZ)
-		and Duel.IsExistingTarget(c14931413.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,e:GetHandler(),tp) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	Duel.SelectTarget(tp,c14931413.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,e:GetHandler(),tp)
-end
-function c14931413.operation(e,tp,eg,ep,ev,re,r,rp)
+function s.immval(e,re)
 	local c=e:GetHandler()
+	if not (re:IsActivated() and c:IsSummonType(SUMMON_TYPE_LINK) and e:GetOwnerPlayer()==1-re:GetOwnerPlayer()) then return false end
+	if not re:IsHasProperty(EFFECT_FLAG_CARD_TARGET) then return true end
+	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
+	return not g or not g:IsContains(c)
+end
+function s.chcon(e,tp,eg,ep,ev,re,r,rp)
+	return rp~=tp and Duel.IsChainNegatable(ev)
+end
+function s.tgfilter(c)
+	return c:IsSetCard(0xb93) and c:IsMonster() and c:IsAbleToGrave()
+end
+function s.chtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil) end
+end
+function s.chop(e,tp,eg,ep,ev,re,r,rp)
+	local g=Group.CreateGroup()
+	Duel.ChangeTargetCard(ev,g)
+	Duel.ChangeChainOperation(ev,s.repop)
+end
+function s.repop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_TOGRAVE)
+	local g=Duel.SelectMatchingCard(1-tp,s.tgfilter,1-tp,LOCATION_DECK,0,1,1,nil)
+	if #g>0 then
+		Duel.SendtoGrave(g,REASON_EFFECT)
+	end
+end
+function s.thcon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD)
+end
+function s.thfilter(c)
+	return c:IsSetCard(0xb93) and c:IsAbleToHand()
+end
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.thfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.thfilter,tp,LOCATION_GRAVE,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local sg=Duel.SelectTarget(tp,s.thfilter,tp,LOCATION_GRAVE,0,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,sg,#sg,0,0)
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if c:IsRelateToEffect(e) and tc:IsRelateToEffect(e) and not tc:IsImmuneToEffect(e) then
-		Duel.Overlay(c,tc,true)
+	if tc and tc:IsRelateToEffect(e) then
+		Duel.SendtoHand(tc,nil,REASON_EFFECT)
 	end
-end
-function c14931413.thcon(e,tp,eg,ep,ev,re,r,rp)
-	local ph=Duel.GetCurrentPhase()
-	return ph==PHASE_MAIN1 or ph==PHASE_MAIN2
-end
-function c14931413.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,2,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,2,2,REASON_COST)
-end
-function c14931413.thfilter(c)
-	return c:IsCode(14931419) and c:IsAbleToHand()
-end
-function c14931413.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c14931413.thfilter,tp,LOCATION_DECK|LOCATION_GRAVE,0,1,nil) end
-end
-function c14931413.thop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
-	local tc=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(c14931413.thfilter),tp,LOCATION_DECK|LOCATION_GRAVE,0,1,1,nil):GetFirst()
-	if #tc>0 then
-		Duel.SSet(tp,tc)
-	end
-end
-function c14931413.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return c:IsReason(REASON_BATTLE+REASON_EFFECT) and not c:IsReason(REASON_REPLACE) and c:CheckRemoveOverlayCard(tp,1,REASON_EFFECT) end
-	if Duel.SelectEffectYesNo(tp,e:GetHandler(),96) then
-		c:RemoveOverlayCard(tp,1,1,REASON_EFFECT)
-		return true
-	else return false end
 end

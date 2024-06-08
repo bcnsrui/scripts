@@ -1,54 +1,88 @@
---raindrop cherry
-function c14931412.initial_effect(c)
-	--search2
+--빗방울 레이냐
+local s,id=GetID()
+function s.initial_effect(c)
+	--link summon
+	c:EnableReviveLimit()
+	Link.AddProcedure(c,nil,2,3,s.lcheck)
+	--indestructable
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_SPSUMMON_PROC)
-	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
-	e1:SetRange(LOCATION_HAND+LOCATION_GRAVE)
-	e1:SetCountLimit(1,14931412,EFFECT_COUNT_CODE_OATH)
-	e1:SetCondition(c14931412.spcon)
-	e1:SetOperation(c14931412.spop)
+	e1:SetCode(EFFECT_INDESTRUCTABLE_COUNT)
+	e1:SetRange(LOCATION_MZONE)
+	e1:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+	e1:SetTarget(s.indtg)
+	e1:SetValue(s.indct)
 	c:RegisterEffect(e1)
-	--todeck
+	--Destroy
 	local e2=Effect.CreateEffect(c)
-	e2:SetCategory(CATEGORY_TOHAND)
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e2:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
-	e2:SetCountLimit(1,114931412)
-	e2:SetTarget(c14931412.shtg)
-	e2:SetOperation(c14931412.shop)
+	e2:SetDescription(aux.Stringid(id,0))
+	e2:SetCategory(CATEGORY_TOGRAVE)
+	e2:SetType(EFFECT_TYPE_QUICK_O)
+	e2:SetCode(EVENT_FREE_CHAIN)
+	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetCountLimit(1,id)
+	e2:SetTarget(s.tgtg)
+	e2:SetOperation(s.tgop)
 	c:RegisterEffect(e2)
+	--to hand
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetCategory(CATEGORY_TOHAND)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e3:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
+	e3:SetCode(EVENT_TO_GRAVE)
+	e3:SetCountLimit(1,{id,1})
+	e3:SetCondition(s.thcon)
+	e3:SetTarget(s.thtg)
+	e3:SetOperation(s.thop)
+	c:RegisterEffect(e3)
 end
-function c14931412.spfilter(c)
-	return c:IsSetCard(0xb93) and c:IsType(TYPE_MONSTER) and c:IsAbleToDeckAsCost()
+function s.lcheck(g,lc,sumtype,tp)
+	return g:IsExists(Card.IsSetCard,1,nil,0xb93,lc,sumtype,tp)
 end
-function c14931412.spcon(e,c)
-	if c==nil then return true end
-	if c:IsHasEffect(EFFECT_NECRO_VALLEY) then return false end
-	local tp=c:GetControler()
-	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(c14931412.spfilter,tp,LOCATION_GRAVE,0,2,e:GetHandler())
+function s.indtg(e,c)
+	return e:GetHandler():GetLinkedGroup():IsContains(c)
 end
-function c14931412.spop(e,tp,eg,ep,ev,re,r,rp,c)
-	local ft=Duel.GetLocationCount(tp,LOCATION_GRAVE)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g=Duel.SelectMatchingCard(tp,c14931412.spfilter,tp,LOCATION_GRAVE,0,2,2,e:GetHandler())
-	Duel.SendtoDeck(g,nil,2,REASON_COST)
+function s.indct(e,re,r,rp)
+	if bit.band(r,REASON_BATTLE+REASON_EFFECT)~=0 then
+		return 1
+	else return 0 end
 end
-function c14931412.filter(c)
-	return c:IsSetCard(0xb93) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
+function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return false end
+	if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToGrave,tp,LOCATION_ONFIELD,0,1,nil)
+		and Duel.IsExistingTarget(Card.IsAbleToGrave,tp,0,LOCATION_ONFIELD,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local g1=Duel.SelectTarget(tp,Card.IsAbleToGrave,tp,LOCATION_ONFIELD,0,1,1,nil)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local g2=Duel.SelectTarget(tp,Card.IsAbleToGrave,tp,0,LOCATION_ONFIELD,1,1,nil)
+	g1:Merge(g2)
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,g1,2,0,0)
 end
-function c14931412.shtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c14931412.filter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(c14931412.filter,tp,LOCATION_GRAVE,0,1,nil) end
+function s.tgop(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
+	local tg=g:Filter(Card.IsRelateToEffect,nil,e)
+	if #tg>0 then
+		Duel.SendtoGrave(tg,REASON_EFFECT)
+	end
+end
+function s.thcon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD)
+end
+function s.thfilter(c)
+	return c:IsSetCard(0xb93) and c:IsAbleToHand()
+end
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.thfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.thfilter,tp,LOCATION_GRAVE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectTarget(tp,c14931412.filter,tp,LOCATION_GRAVE,0,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
+	local sg=Duel.SelectTarget(tp,s.thfilter,tp,LOCATION_GRAVE,0,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,sg,#sg,0,0)
 end
-function c14931412.shop(e,tp,eg,ep,ev,re,r,rp)
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
+	if tc and tc:IsRelateToEffect(e) then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
 	end
 end
