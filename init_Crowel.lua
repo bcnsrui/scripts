@@ -34,8 +34,8 @@ end
 
 
 --Bug fix
-Duel.LoadScript("Crowel_config.lua")
-Duel.LoadScript("Crowel_hotfix.lua")
+--Duel.LoadScript("Crowel_config.lua")
+--Duel.LoadScript("Crowel_hotfix.lua")
 
 
 --EFFECT_LINK_MAT_RESTRICTION
