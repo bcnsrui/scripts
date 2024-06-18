@@ -1,6 +1,6 @@
 --빙글빙글 무적의 판타지 소녀
 Duel.LoadScript("proc_Yunomi.lua") --유노미 유틸리티 사용
-ocal s,id=GetID()
+local s,id=GetID()
 if not GetID then
 	id=c:GetOriginalCode()
 	s="c"..id
