@@ -33,11 +33,6 @@ function Effect.IsCode(e,...)
 end
 
 
---Bug fix
---Duel.LoadScript("Crowel_config.lua")
---Duel.LoadScript("Crowel_hotfix.lua")
-
-
 --EFFECT_LINK_MAT_RESTRICTION
 local lap=Link.AddProcedure
 Link.AddProcedure=function(c,f,min,max,specialchk,desc)
@@ -65,10 +60,6 @@ Link.AddProcedure=function(c,f,min,max,specialchk,desc)
 end
 
 
---EFFECT_CUSTOM_MAT_RESTRICTION
---차후 작업
-
-
 --EFFECT_LEVEL_RANK_R
 --Replace Level with Rank
 Card.HasDataLevel = Card.HasLevel
@@ -87,11 +78,11 @@ Card.HasLevel = function(c)
 	end
 	return false
 end
-Card.GetOriginalDataLevel=Card.GetOriginalLevel
-Card.GetOriginalDataRank=Card.GetOriginalRank
+Card.GetDataOriginalLevel=Card.GetOriginalLevel
+Card.GetDataOriginalRank=Card.GetOriginalRank
 Card.GetOriginalLevel=function(c)
-	local data_level=c:GetOriginalDataLevel()
-	local data_rank=c:GetOriginalDataRank()
+	local data_level=c:GetDataOriginalLevel()
+	local data_rank=c:GetDataOriginalRank()
 	local effs=table.Filter({c:GetCardEffect()},(function(e)
 		return e:GetProperty()&(EFFECT_FLAG_INITIAL|EFFECT_FLAG_SINGLE_RANGE|EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_UNCOPYABLE)==(EFFECT_FLAG_INITIAL|EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_UNCOPYABLE)
 			and e:GetType()==EFFECT_TYPE_SINGLE
@@ -125,8 +116,8 @@ Card.GetOriginalLevel=function(c)
 	return data_level
 end
 Card.GetOriginalRank=function(c)
-	local data_rank=c:GetOriginalDataRank()
-	local data_level=c:GetOriginalDataLevel()
+	local data_rank=c:GetDataOriginalRank()
+	local data_level=c:GetDataOriginalLevel()
 	local effs=table.Filter({c:GetCardEffect()},(function(e)
 		return e:GetProperty()&(EFFECT_FLAG_INITIAL|EFFECT_FLAG_SINGLE_RANGE|EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_UNCOPYABLE)==(EFFECT_FLAG_INITIAL|EFFECT_FLAG_CANNOT_DISABLE|EFFECT_FLAG_UNCOPYABLE)
 			and e:GetType()==EFFECT_TYPE_SINGLE
@@ -187,7 +178,7 @@ function Auxiliary.ReplaceLevelWithRank(c,rc,reset)
 	ex2:SetType(EFFECT_TYPE_SINGLE)
 	ex2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	ex2:SetCode(EFFECT_CHANGE_RANK_FINAL)
-	ex2:SetValue(c:GetOriginalDataLevel())
+	ex2:SetValue(c:GetDataOriginalLevel())
 	ex2:SetReset(reset)
 	c:RegisterEffect(ex2)
 	local ex3=f(rc)
@@ -245,10 +236,4 @@ function Auxiliary.EnableExtraFusion(f)
 	table.insert(ExtraFusion,f)
 	return true
 end
-
-
---EFFECT_ST_ACT_IN_LOCATION
---Make Spell/Trap activatable from other than hand/field
---차후 작업
-
 
