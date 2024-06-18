@@ -1,4 +1,5 @@
 --시나몬 금발동맹 앨리스
+Duel.LoadScript("proc_Yunomi.lua") --유노미 유틸리티 사용
 local s,id=GetID()
 if not GetID then
 	id=c:GetOriginalCode()

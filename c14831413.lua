@@ -1,4 +1,5 @@
 --마시멜로 마끼아또(유노미)
+Duel.LoadScript("proc_Yunomi.lua") --유노미 유틸리티 사용
 local s,id=GetID()
 function s.initial_effect(c)
 	--Activate

@@ -1,4 +1,5 @@
 --소원을 지피며 노래하는 소녀
+Duel.LoadScript("proc_Yunomi.lua") --유노미 유틸리티 사용
 local s,id=GetID()
 function s.initial_effect(c)
 	--special summon

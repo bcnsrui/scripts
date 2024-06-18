@@ -1,4 +1,5 @@
 --카드캡터 체리
+Duel.LoadScript("proc_Yunomi.lua") --유노미 유틸리티 사용
 local s,id=GetID()
 function s.initial_effect(c)
 	--fusion substitute

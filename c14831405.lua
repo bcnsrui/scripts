@@ -1,4 +1,5 @@
 --은하수에 일렁이는 젤리피쉬
+Duel.LoadScript("proc_Yunomi.lua") --유노미 유틸리티 사용
 local s,id=GetID()
 if not GetID then
 	id=c:GetOriginalCode()

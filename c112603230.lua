@@ -1,4 +1,5 @@
 --BLiTz(블리츠) Ż 커큘러스 디 엔드
+Duel.LoadScript("proc_Yunomi.lua") --유노미 유틸리티 사용
 local s,id=GetID()
 local m=112603230
 local cm=_G["c"..m]

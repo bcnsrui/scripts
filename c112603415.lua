@@ -1,4 +1,5 @@
 --나나미 아오이 & 타카사고 미즈호 / 밸런타인 메모리
+Duel.LoadScript("proc_Yunomi.lua") --유노미 유틸리티 사용
 local s,id=GetID()
 local m=112603415
 local cm=_G["c"..m]

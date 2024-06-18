@@ -1,4 +1,5 @@
 --조용한 물결에 반짝이는 크리스탈(유노미)
+Duel.LoadScript("proc_Yunomi.lua") --유노미 유틸리티 사용
 local s,id=GetID()
 function s.initial_effect(c)
 	aux.AddEquipProcedure(c,nil,s.eqfilter)
